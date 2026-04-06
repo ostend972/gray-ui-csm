@@ -58,7 +58,7 @@ export function TicketColumn({
   return (
     <section
       className={cn(
-        "flex min-w-0 flex-1 flex-col gap-2 rounded-2xl border border-transparent bg-muted/40 p-2 transition-colors",
+        "flex min-w-0 flex-1 flex-col gap-2 rounded-2xl border border-transparent bg-muted/40 dark:bg-muted/25 dark:border dark:border-border/50 p-2 transition-colors",
         isDropTarget ? "border-primary/50 bg-primary/5" : ""
       )}
       onDragOver={onColumnDragOver}

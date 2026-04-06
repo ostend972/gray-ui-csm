@@ -81,9 +81,9 @@ export function TicketSidebarFilters() {
   const activeView = searchParams.get("view") ?? "all"
 
   return (
-    <div className="px-3 py-1">
+    <div className="flex flex-col gap-5 px-3 py-3">
       {ticketSidebarGroups.map((group) => (
-        <SidebarGroup key={group.key} className="p-2 pb-3">
+        <SidebarGroup key={group.key} className="p-2 pb-3 gap-2">
           <SidebarGroupLabel className="py-2 px-2 text-xs tracking-wide text-sidebar-foreground/65 uppercase">
             {group.label}
           </SidebarGroupLabel>

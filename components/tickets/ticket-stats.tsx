@@ -75,13 +75,13 @@ export function TicketStats({ stats }: TicketStatsProps) {
           key={stat.key}
           className="gap-0 rounded-2xl border py-0 shadow-none ring-0"
         >
-          <CardHeader className="px-3 py-2">
+          <CardHeader className="px-5 py-3">
             <div className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
               <StatLeadIcon statKey={stat.key} />
               {stat.label}
             </div>
           </CardHeader>
-          <CardContent className="space-y-1.5 border-t px-3 py-3">
+          <CardContent className="space-y-3 border-t px-5 py-4">
             <p className="text-3xl leading-8 font-medium text-foreground">
               {stat.value}
             </p>

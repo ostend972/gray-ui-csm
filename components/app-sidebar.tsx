@@ -16,13 +16,11 @@ import {
   IconUsersGroup,
 } from "@tabler/icons-react"
 
-import { NavUser } from "@/components/nav-user"
 import { TicketSidebarFilters } from "@/components/tickets/ticket-sidebar-filters"
 import { Label } from "@/components/ui/label"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -49,19 +47,9 @@ type PanelItem = {
 }
 
 const data: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
   navMain: SidebarItem[]
   panelBySection: Record<string, PanelItem[]>
 } = {
-  user: {
-    name: "Jason Support Lab",
-    email: "support-ops@opensource-demo.dev",
-    avatar: "/avatars/jason.jpg",
-  },
   navMain: [
     { title: "Inbox", url: "/inbox", icon: <IconInbox /> },
     { title: "Tickets", url: "/tickets", icon: <IconTicket /> },
@@ -260,7 +248,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         setOpen(true)
                       }}
                       isActive={activeItem.title === item.title}
-                      className="px-2.5 md:px-2"
+                      className="px-2.5 text-muted-foreground data-active:text-sidebar-accent-foreground md:px-2 [&_svg]:text-muted-foreground data-active:[&_svg]:text-sidebar-accent-foreground"
                     >
                       {item.icon}
                       <span>{item.title}</span>
@@ -271,12 +259,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>
-          <NavUser user={data.user} />
-        </SidebarFooter>
       </Sidebar>
 
-      <Sidebar collapsible="none" className="hidden flex-1 md:flex">
+      <Sidebar collapsible="none" className="hidden min-w-0 flex-1 md:flex">
         {isTicketsSection ? (
           <SidebarContent>
             <TicketSidebarFilters />
@@ -302,14 +287,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <a
                       href="#"
                       key={`${item.email}-${item.subject}`}
-                      className="flex flex-col items-start gap-2 border-b p-4 text-sm leading-tight whitespace-nowrap last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      className="flex w-full flex-col items-start gap-2 border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     >
-                      <div className="flex w-full items-center gap-2">
-                        <span>{item.name}</span>
-                        <span className="ml-auto text-xs">{item.date}</span>
+                      <div className="flex w-full min-w-0 items-center gap-2">
+                        <span className="truncate">{item.name}</span>
+                        <span className="ml-auto shrink-0 text-xs">
+                          {item.date}
+                        </span>
                       </div>
-                      <span className="font-medium">{item.subject}</span>
-                      <span className="line-clamp-2 w-[260px] text-xs whitespace-break-spaces">
+                      <span className="w-full truncate font-medium">
+                        {item.subject}
+                      </span>
+                      <span className="line-clamp-2 w-full text-xs whitespace-break-spaces">
                         {item.teaser}
                       </span>
                     </a>
