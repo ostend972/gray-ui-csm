@@ -1,15 +1,13 @@
 "use client"
 
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import {
   IconAlertCircle,
   IconCircleDot,
   IconClock,
-  IconCreditCard,
-  IconLock,
-  IconReceipt2,
+  IconFolder,
   IconTicket,
-  IconTool,
   IconUser,
   IconUserQuestion,
 } from "@tabler/icons-react"
@@ -35,6 +33,7 @@ const PRIORITY_KEYS: TicketPriority[] = [
   "low",
   "todo",
 ]
+const BADGED_VIEW_KEYS = new Set(["mine", "unassigned", "past-due", "escalated"])
 
 function buildFilterHref(groupKey: string, itemKey: string) {
   if (groupKey === "views") {
@@ -60,10 +59,7 @@ function TicketFilterIcon({
   }
 
   if (groupKey === "categories") {
-    if (itemKey === "billing") return <IconReceipt2 className="size-4" />
-    if (itemKey === "technical") return <IconTool className="size-4" />
-    if (itemKey === "account-login") return <IconLock className="size-4" />
-    if (itemKey === "subscription") return <IconCreditCard className="size-4" />
+    return <IconFolder className="size-4" />
   }
 
   if (groupKey === "priority") {
@@ -81,7 +77,8 @@ function TicketFilterIcon({
 }
 
 export function TicketSidebarFilters() {
-  const activeView = "all"
+  const searchParams = useSearchParams()
+  const activeView = searchParams.get("view") ?? "all"
 
   return (
     <div className="px-3 py-1">
@@ -96,6 +93,8 @@ export function TicketSidebarFilters() {
               {group.items.map((item) => {
                 const isActive =
                   group.key === "views" && item.key === activeView
+                const shouldShowBadge =
+                  group.key === "views" && BADGED_VIEW_KEYS.has(item.key)
 
                 return (
                   <SidebarMenuItem key={item.key}>
@@ -112,16 +111,18 @@ export function TicketSidebarFilters() {
                       />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
-                    <SidebarMenuBadge
-                      className={cn(
-                        "top-1.5 rounded-full px-1.5 text-xs font-medium",
-                        isActive
-                          ? "bg-background text-sidebar-accent-foreground"
-                          : "bg-muted-foreground/10 text-sidebar-foreground/80"
-                      )}
-                    >
-                      {item.count}
-                    </SidebarMenuBadge>
+                    {shouldShowBadge ? (
+                      <SidebarMenuBadge
+                        className={cn(
+                          "top-1.5 rounded-full px-1.5 text-xs font-medium",
+                          isActive
+                            ? "bg-background text-sidebar-accent-foreground"
+                            : "bg-muted-foreground/10 text-sidebar-foreground/80"
+                        )}
+                      >
+                        {item.count}
+                      </SidebarMenuBadge>
+                    ) : null}
                   </SidebarMenuItem>
                 )
               })}

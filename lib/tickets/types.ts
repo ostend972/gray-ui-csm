@@ -4,7 +4,7 @@ export type TicketHealth = "warning" | "breached" | "on-track"
 
 export type TicketChannel = "email" | "chat" | "slack"
 
-export type TicketTrend = "up" | "flat"
+export type TicketTrend = "up" | "down" | "flat"
 
 export type TicketPriority = "urgent" | "high" | "medium" | "low" | "todo"
 
@@ -47,6 +47,10 @@ export interface TicketStat {
   key: "total" | "open" | "pending" | "resolved"
   label: string
   value: number
+  previousValue: number
+  delta: number
+  deltaPercent: number
+  trend: TicketTrend
   comparison: string
 }
 

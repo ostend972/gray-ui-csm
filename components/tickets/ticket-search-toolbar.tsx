@@ -1,4 +1,9 @@
-import { IconAdjustmentsHorizontal, IconSearch } from "@tabler/icons-react"
+import {
+  IconAdjustmentsHorizontal,
+  IconLayoutKanban,
+  IconSearch,
+  IconTable,
+} from "@tabler/icons-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -8,6 +13,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import type { TicketQueueStatus } from "@/lib/tickets/types"
 
 type TicketStatusFilter = "all" | TicketQueueStatus
@@ -74,6 +85,33 @@ export function TicketSearchToolbar({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <TooltipProvider>
+          <div className="flex items-center gap-1 rounded-xl border bg-background p-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="size-7 rounded-lg bg-muted/70"
+              aria-label="Board view"
+            >
+              <IconLayoutKanban className="size-4" />
+            </Button>
+            <Tooltip>
+              <TooltipTrigger render={<span className="inline-flex" />}>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="size-7 rounded-lg"
+                  disabled
+                  aria-label="Table view"
+                >
+                  <IconTable className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Table view is coming soon</TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
     </section>
   )

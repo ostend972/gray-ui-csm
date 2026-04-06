@@ -7,10 +7,11 @@ import { TicketBoard } from "@/components/tickets/ticket-board"
 import { TicketSearchToolbar } from "@/components/tickets/ticket-search-toolbar"
 import { TicketStats } from "@/components/tickets/ticket-stats"
 import { Button } from "@/components/ui/button"
-import { filterTicketsByView, tickets } from "@/lib/tickets/mock-data"
+import { filterTicketsByView, tickets as initialTickets } from "@/lib/tickets/mock-data"
 import type {
   TicketQueueStatus,
   TicketStat,
+  TicketTrend,
   TicketViewKey,
 } from "@/lib/tickets/types"
 
@@ -30,7 +31,16 @@ function getViewFromSearchParam(view: string | null): TicketViewKey {
   return "all"
 }
 
-function buildStats(sourceTickets: typeof tickets): TicketStat[] {
+function calculateTrend(current: number, previous: number): Pick<TicketStat, "delta" | "deltaPercent" | "trend"> {
+  const delta = current - previous
+  const deltaPercent =
+    previous === 0 ? (current === 0 ? 0 : 100) : Number(((delta / previous) * 100).toFixed(1))
+  const trend: TicketTrend = delta > 0 ? "up" : delta < 0 ? "down" : "flat"
+
+  return { delta, deltaPercent, trend }
+}
+
+function buildStats(sourceTickets: typeof initialTickets): TicketStat[] {
   const total = sourceTickets.length
   const open = sourceTickets.filter(
     (ticket) => ticket.queueStatus === "open"
@@ -42,24 +52,49 @@ function buildStats(sourceTickets: typeof tickets): TicketStat[] {
     (ticket) => ticket.queueStatus === "resolved"
   ).length
 
+  const previousByKey = {
+    total: Math.max(total - 3, 0),
+    open: Math.max(open + 2, 0),
+    pending: Math.max(pending + 1, 0),
+    resolved: Math.max(resolved - 2, 0),
+  }
+
+  const totalTrend = calculateTrend(total, previousByKey.total)
+  const openTrend = calculateTrend(open, previousByKey.open)
+  const pendingTrend = calculateTrend(pending, previousByKey.pending)
+  const resolvedTrend = calculateTrend(resolved, previousByKey.resolved)
+
   return [
     {
       key: "total",
       label: "Total Tickets",
       value: total,
+      previousValue: previousByKey.total,
+      ...totalTrend,
       comparison: "vs last week",
     },
-    { key: "open", label: "Open", value: open, comparison: "vs last week" },
+    {
+      key: "open",
+      label: "Open",
+      value: open,
+      previousValue: previousByKey.open,
+      ...openTrend,
+      comparison: "vs last week",
+    },
     {
       key: "pending",
       label: "Pending",
       value: pending,
+      previousValue: previousByKey.pending,
+      ...pendingTrend,
       comparison: "vs last week",
     },
     {
       key: "resolved",
       label: "Resolved",
       value: resolved,
+      previousValue: previousByKey.resolved,
+      ...resolvedTrend,
       comparison: "vs last week",
     },
   ]
@@ -72,14 +107,15 @@ type TicketsPageProps = {
 export function TicketsPage({ initialView = "all" }: TicketsPageProps) {
   const activeView = getViewFromSearchParam(initialView)
 
+  const [ticketItems, setTicketItems] = useState(initialTickets)
   const [query, setQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | TicketQueueStatus>(
     "all"
   )
 
   const visibleByView = useMemo(
-    () => filterTicketsByView(tickets, activeView),
-    [activeView]
+    () => filterTicketsByView(ticketItems, activeView),
+    [activeView, ticketItems]
   )
 
   const stats = useMemo(() => buildStats(visibleByView), [visibleByView])
@@ -100,10 +136,24 @@ export function TicketsPage({ initialView = "all" }: TicketsPageProps) {
     })
   }, [query, statusFilter, visibleByView])
 
+  const handleMoveTicket = (ticketId: string, queueStatus: TicketQueueStatus) => {
+    setTicketItems((previousTickets) => {
+      const target = previousTickets.find((ticket) => ticket.id === ticketId)
+      if (!target) return previousTickets
+
+      const nextTicket = { ...target, queueStatus }
+
+      return [
+        ...previousTickets.filter((ticket) => ticket.id !== ticketId),
+        nextTicket,
+      ]
+    })
+  }
+
   return (
     <div className="space-y-4">
       <section className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-[30px] leading-[1.2] font-semibold tracking-tight text-foreground">
+        <h1 className="text-3xl leading-tight font-semibold tracking-tight text-foreground">
           Tickets
         </h1>
 
@@ -132,7 +182,7 @@ export function TicketsPage({ initialView = "all" }: TicketsPageProps) {
         onStatusFilterChange={setStatusFilter}
       />
 
-      <TicketBoard tickets={filteredTickets} />
+      <TicketBoard tickets={filteredTickets} onMoveTicket={handleMoveTicket} />
     </div>
   )
 }

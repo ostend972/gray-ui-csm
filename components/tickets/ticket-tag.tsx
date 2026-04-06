@@ -33,7 +33,7 @@ export function TicketTag({ tone, className }: TicketTagProps) {
     <Badge
       variant="outline"
       className={cn(
-        "h-5 gap-1 rounded-full px-2 text-[10px] font-medium",
+        "h-5 gap-1 rounded-full px-2 text-xs font-medium",
         toneClassName[tone],
         className
       )}

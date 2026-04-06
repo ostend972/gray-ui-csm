@@ -5,9 +5,14 @@ import { TicketTag } from "@/components/tickets/ticket-tag"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Ticket } from "@/lib/tickets/types"
+import { cn } from "@/lib/utils"
 
 type TicketCardProps = {
   ticket: Ticket
+  draggable?: boolean
+  isDragging?: boolean
+  onDragStart?: (event: React.DragEvent<HTMLDivElement>) => void
+  onDragEnd?: () => void
 }
 
 function TicketChannelIcon({ channel }: { channel: Ticket["channel"] }) {
@@ -22,7 +27,13 @@ function TicketChannelIcon({ channel }: { channel: Ticket["channel"] }) {
   return <IconMessage2 className="size-4 text-muted-foreground" />
 }
 
-export function TicketCard({ ticket }: TicketCardProps) {
+export function TicketCard({
+  ticket,
+  draggable,
+  isDragging,
+  onDragStart,
+  onDragEnd,
+}: TicketCardProps) {
   const initials = ticket.assignee?.name
     .split(" ")
     .map((part) => part[0])
@@ -31,7 +42,16 @@ export function TicketCard({ ticket }: TicketCardProps) {
     .toUpperCase()
 
   return (
-    <Card className="gap-0 rounded-2xl border bg-card py-0 shadow-none ring-0">
+    <Card
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      className={cn(
+        "gap-0 rounded-2xl border bg-card py-0 shadow-none ring-0 transition",
+        draggable ? "cursor-grab active:cursor-grabbing" : "",
+        isDragging ? "opacity-70" : ""
+      )}
+    >
       <CardContent className="space-y-3 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 text-muted-foreground">
@@ -43,13 +63,13 @@ export function TicketCard({ ticket }: TicketCardProps) {
           </span>
         </div>
 
-        <p className="line-clamp-2 text-[15px] leading-6 font-medium text-card-foreground">
+        <p className="line-clamp-2 text-sm leading-6 font-medium text-card-foreground">
           {ticket.subject}
         </p>
 
         <div className="flex items-center justify-between">
           <Avatar className="size-6 border bg-background">
-            <AvatarFallback className="text-[10px]">
+            <AvatarFallback className="text-xs">
               {initials || "--"}
             </AvatarFallback>
           </Avatar>
