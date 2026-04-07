@@ -82,12 +82,16 @@ export function DataGrid<Row extends DataGridRowBase, ColumnId extends string>({
     controlColumnWidth: CONTROL_COLUMN_WIDTH,
   })
 
-  const optionsSensors = useSensors(
-    useSensor(PointerSensor, {
+  const optionsPointerSensorOptions = React.useMemo(
+    () => ({
       activationConstraint: {
         distance: 6,
       },
-    })
+    }),
+    []
+  )
+  const optionsSensors = useSensors(
+    useSensor(PointerSensor, optionsPointerSensorOptions)
   )
 
   const drawerRow = React.useMemo(() => {

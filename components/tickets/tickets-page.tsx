@@ -1,7 +1,7 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { startTransition, useEffect, useMemo, useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   IconArrowsSort,
   IconChevronDown,
@@ -187,10 +187,15 @@ export function TicketsPage({
   initialView = "all",
   initialLayout = "board",
 }: TicketsPageProps) {
-  const activeView = getViewFromSearchParam(initialView)
-  const activeLayout = getLayoutFromSearchParam(initialLayout)
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const activeView = getViewFromSearchParam(
+    searchParams.get("view") ?? initialView
+  )
+  const resolvedLayout = getLayoutFromSearchParam(
+    searchParams.get("layout") ?? initialLayout
+  )
 
   const [ticketItems, setTicketItems] = useState(initialTickets)
   const [isStatsExpanded, setIsStatsExpanded] = useState(true)
@@ -199,15 +204,28 @@ export function TicketsPage({
     "all"
   )
   const [sortPreset, setSortPreset] = useState<TicketSortPreset>("boardOrder")
+  const [activeLayout, setActiveLayout] =
+    useState<TicketLayoutMode>(resolvedLayout)
   const [tableToolbarProps, setTableToolbarProps] =
     useState<DataGridToolbarRenderProps<TicketColumnId> | null>(null)
 
+  useEffect(() => {
+    setActiveLayout(resolvedLayout)
+  }, [resolvedLayout])
+
   const handleLayoutModeChange = (layoutMode: TicketLayoutMode) => {
-    const nextSearchParams = new URLSearchParams()
+    if (layoutMode === activeLayout) return
+
+    setActiveLayout(layoutMode)
+
+    const nextSearchParams = new URLSearchParams(searchParams.toString())
     nextSearchParams.set("view", activeView)
     nextSearchParams.set("layout", layoutMode)
-    router.replace(`${pathname}?${nextSearchParams.toString()}`, {
-      scroll: false,
+
+    startTransition(() => {
+      router.replace(`${pathname}?${nextSearchParams.toString()}`, {
+        scroll: false,
+      })
     })
   }
 
