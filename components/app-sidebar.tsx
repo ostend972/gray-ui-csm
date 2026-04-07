@@ -216,10 +216,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuItem>
               <SidebarMenuButton
                 size="lg"
-                className="md:h-8 md:p-0"
+                className="md:h-8 md:p-0 rounded-none overflow-hidden"
                 render={<a href="#" />}
               >
-                <div className="flex aspect-square size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <div
+                  className="flex aspect-square size-8 items-center justify-center text-primary-foreground"
+                  style={{
+                    borderRadius: "var(--radius-lg)",
+                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    background: "var(--primary)",
+                    boxShadow:
+                      "0 0 0 0.667px rgba(0, 0, 0, 0.20) inset, 0 2px 2px 0 rgba(255, 255, 255, 0.10) inset, 0 -2px 2px 0 rgba(0, 0, 0, 0.10) inset, 0 2px 2.667px -0.667px rgba(42, 42, 42, 0.14), 0 0.667px 0.667px 0 rgba(42, 42, 42, 0.08)",
+                  }}
+                >
                   <IconCommand className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
