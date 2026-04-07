@@ -1,7 +1,7 @@
 import {
   IconArrowDown,
   IconArrowUp,
-  IconCircle,
+  IconCircleDashed,
   IconMinus,
 } from "@tabler/icons-react"
 
@@ -39,7 +39,9 @@ const PRIORITY_VISUAL: Record<TicketPriority, PriorityVisualConfig> = {
   },
   todo: {
     label: "Todo",
-    icon: <IconCircle className="size-4 text-zinc-500 dark:text-zinc-400" />,
+    icon: (
+      <IconCircleDashed className="size-4 text-zinc-400 dark:text-zinc-500" />
+    ),
   },
 }
 
