@@ -35,14 +35,6 @@ const PRIORITY_KEYS: TicketPriority[] = [
 ]
 const BADGED_VIEW_KEYS = new Set(["mine", "unassigned", "past-due", "escalated"])
 
-function buildFilterHref(groupKey: string, itemKey: string) {
-  if (groupKey === "views") {
-    return `/tickets?view=${itemKey}`
-  }
-
-  return "/tickets"
-}
-
 function TicketFilterIcon({
   groupKey,
   itemKey,
@@ -79,6 +71,19 @@ function TicketFilterIcon({
 export function TicketSidebarFilters() {
   const searchParams = useSearchParams()
   const activeView = searchParams.get("view") ?? "all"
+  const activeLayout = searchParams.get("layout") ?? "board"
+
+  const buildItemHref = (groupKey: string, itemKey: string) => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString())
+
+    nextSearchParams.set("layout", activeLayout)
+
+    if (groupKey === "views") {
+      nextSearchParams.set("view", itemKey)
+    }
+
+    return `/tickets?${nextSearchParams.toString()}`
+  }
 
   return (
     <div className="flex flex-col gap-5 px-3 py-3">
@@ -100,7 +105,7 @@ export function TicketSidebarFilters() {
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton
                       render={
-                        <Link href={buildFilterHref(group.key, item.key)} />
+                        <Link href={buildItemHref(group.key, item.key)} />
                       }
                       isActive={isActive}
                       className="h-8 rounded-lg px-2"

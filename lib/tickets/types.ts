@@ -15,6 +15,8 @@ export type TicketViewKey =
   | "past-due"
   | "escalated"
 
+export type TicketLayoutMode = "board" | "table"
+
 export type TicketCategoryKey =
   | "billing"
   | "technical"

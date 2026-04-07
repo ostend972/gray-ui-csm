@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import {
   IconAdjustmentsHorizontal,
   IconLayoutKanban,
@@ -13,13 +14,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import type { TicketQueueStatus } from "@/lib/tickets/types"
+  type TicketLayoutMode,
+  type TicketQueueStatus,
+} from "@/lib/tickets/types"
 
 type TicketStatusFilter = "all" | TicketQueueStatus
 
@@ -28,6 +27,9 @@ type TicketSearchToolbarProps = {
   onQueryChange: (query: string) => void
   statusFilter: TicketStatusFilter
   onStatusFilterChange: (status: TicketStatusFilter) => void
+  layoutMode: TicketLayoutMode
+  onLayoutModeChange: (layoutMode: TicketLayoutMode) => void
+  tableActions?: ReactNode
 }
 
 const statusLabels: Record<TicketStatusFilter, string> = {
@@ -51,6 +53,9 @@ export function TicketSearchToolbar({
   onQueryChange,
   statusFilter,
   onStatusFilterChange,
+  layoutMode,
+  onLayoutModeChange,
+  tableActions,
 }: TicketSearchToolbarProps) {
   return (
     <section className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -64,7 +69,9 @@ export function TicketSearchToolbar({
         />
       </div>
 
-      <div className="flex items-center gap-2 self-end">
+      <div className="flex flex-wrap items-center gap-2 self-end">
+        {tableActions}
+
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
@@ -86,32 +93,32 @@ export function TicketSearchToolbar({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <TooltipProvider>
-          <div className="flex items-center gap-1 rounded-xl border bg-background p-1">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="size-7 rounded-lg bg-muted/70"
-              aria-label="Board view"
-            >
-              <IconLayoutKanban className="size-4" />
-            </Button>
-            <Tooltip>
-              <TooltipTrigger render={<span className="inline-flex" />}>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="size-7 rounded-lg"
-                  disabled
-                  aria-label="Table view"
-                >
-                  <IconTable className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">Table view is coming soon</TooltipContent>
-            </Tooltip>
-          </div>
-        </TooltipProvider>
+        <div className="flex items-center gap-1 rounded-xl border bg-background p-1">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className={cn(
+              "size-7 rounded-lg",
+              layoutMode === "board" && "bg-muted/70"
+            )}
+            aria-label="Board view"
+            onClick={() => onLayoutModeChange("board")}
+          >
+            <IconLayoutKanban className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className={cn(
+              "size-7 rounded-lg",
+              layoutMode === "table" && "bg-muted/70"
+            )}
+            aria-label="Table view"
+            onClick={() => onLayoutModeChange("table")}
+          >
+            <IconTable className="size-4" />
+          </Button>
+        </div>
       </div>
     </section>
   )

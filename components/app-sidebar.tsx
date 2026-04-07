@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Suspense } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -273,7 +274,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <Sidebar collapsible="none" className="hidden min-w-0 flex-1 md:flex">
         {isTicketsSection ? (
           <SidebarContent>
-            <TicketSidebarFilters />
+            <Suspense fallback={null}>
+              <TicketSidebarFilters />
+            </Suspense>
           </SidebarContent>
         ) : (
           <>
