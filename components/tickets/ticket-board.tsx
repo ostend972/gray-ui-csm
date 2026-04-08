@@ -54,6 +54,16 @@ type DragPreview = {
   index: number
 }
 
+function areDragPreviewsEqual(
+  left: DragPreview | null,
+  right: DragPreview | null
+) {
+  if (left === right) return true
+  if (!left || !right) return false
+
+  return left.queueStatus === right.queueStatus && left.index === right.index
+}
+
 function sortTicketsForBoard(sourceTickets: Ticket[]) {
   return [...sourceTickets].sort((leftTicket, rightTicket) => {
     if (leftTicket.boardOrder === rightTicket.boardOrder) {
@@ -228,7 +238,8 @@ function getDragPreview(
   activeTicketId: string,
   overTarget: DragTarget | null,
   activeRect: { top: number; height: number } | null,
-  overRect: { top: number; height: number } | null
+  overRect: { top: number; height: number } | null,
+  previousPreview: DragPreview | null
 ): DragPreview | null {
   if (!overTarget) return null
 
@@ -267,8 +278,22 @@ function getDragPreview(
 
   const activeCenter = activeRect ? activeRect.top + activeRect.height / 2 : null
   const overCenter = overRect ? overRect.top + overRect.height / 2 : null
+  const offsetFromCenter =
+    activeCenter !== null && overCenter !== null ? activeCenter - overCenter : null
+  const deadZone =
+    overRect !== null ? Math.max(6, Math.min(14, overRect.height * 0.12)) : 10
+
+  if (
+    offsetFromCenter !== null &&
+    Math.abs(offsetFromCenter) <= deadZone &&
+    previousPreview?.queueStatus === overTicket.queueStatus &&
+    (previousPreview.index === overIndex || previousPreview.index === overIndex + 1)
+  ) {
+    return previousPreview
+  }
+
   const shouldInsertAfter =
-    activeCenter !== null && overCenter !== null ? activeCenter > overCenter : false
+    offsetFromCenter !== null ? offsetFromCenter > deadZone : false
 
   return {
     queueStatus: overTicket.queueStatus,
@@ -460,20 +485,28 @@ export function TicketBoard({
 
     const activeTarget = parseDragTarget(String(event.active.id))
     const overTarget = parseDragTarget(String(event.over.id))
+    const overRect = event.over.rect
 
     if (!activeTarget || activeTarget.type !== "ticket" || !overTarget) return
 
     lastOverTargetRef.current = overTarget
 
-    const nextPreview = getDragPreview(
-      tickets,
-      activeTarget.ticketId,
-      overTarget,
-      event.active.rect.current.translated ?? event.active.rect.current.initial,
-      event.over.rect
-    )
+    setDragPreview((currentPreview) =>
+      {
+        const nextPreview = getDragPreview(
+          tickets,
+          activeTarget.ticketId,
+          overTarget,
+          event.active.rect.current.translated ?? event.active.rect.current.initial,
+          overRect,
+          currentPreview
+        )
 
-    setDragPreview(nextPreview)
+        return areDragPreviewsEqual(currentPreview, nextPreview)
+          ? currentPreview
+          : nextPreview
+      }
+    )
   }
 
   const collisionDetectionStrategy: CollisionDetection = (args) => {

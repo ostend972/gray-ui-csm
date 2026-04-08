@@ -131,10 +131,10 @@ export function TicketColumn({
           <div
             key={ticket.id}
             className={cn(
-              "transition-transform duration-150 ease-out",
+              "will-change-transform transition-transform duration-100 ease-out",
               showPreview && previewIndex !== undefined
                 ? index >= previewIndex
-                  ? "translate-y-3"
+                  ? "translate-y-2"
                   : ""
                 : ""
             )}
