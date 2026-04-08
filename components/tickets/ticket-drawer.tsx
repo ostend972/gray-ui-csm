@@ -214,9 +214,9 @@ export function TicketDrawer({
         side="right"
         showCloseButton={false}
         className={cn(
-          "data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 p-0 sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:w-[min(calc(100vw-1.5rem),520px)] sm:data-[side=right]:rounded-[28px] sm:data-[side=right]:border sm:shadow-2xl",
+          "data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 p-0 sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:max-w-none sm:data-[side=right]:w-[min(calc(100vw-1.5rem),clamp(32rem,34vw,44rem))] sm:data-[side=right]:rounded-[28px] sm:data-[side=right]:border sm:shadow-2xl",
           isExpanded &&
-            "lg:data-[side=right]:w-[min(calc(100vw-2rem),740px)]"
+            "lg:data-[side=right]:w-[min(calc(100vw-2rem),clamp(44rem,46vw,60rem))]"
         )}
       >
         {ticket ? (
@@ -326,9 +326,6 @@ function TicketDrawerPanel({
               <SheetTitle className="line-clamp-2 text-[1.05rem] leading-7 font-semibold text-foreground">
                 {ticket.subject}
               </SheetTitle>
-              <SheetDescription className="mt-1 line-clamp-1 text-sm text-muted-foreground">
-                Drawer for triage, metadata updates, and reply drafting without leaving the current ticket view.
-              </SheetDescription>
             </div>
           </div>
 
@@ -422,9 +419,6 @@ function TicketDrawerPanel({
                 <IconSparkles className="size-4 text-muted-foreground" />
                 Triage Summary
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Quick support context for issue framing, ownership, and next action.
-              </p>
             </div>
 
             <Button
