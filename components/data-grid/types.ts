@@ -73,6 +73,7 @@ export type DataGridProps<
     props: DataGridToolbarRenderProps<ColumnId>
   ) => React.ReactNode
   onToolbarPropsChange?: (props: DataGridToolbarRenderProps<ColumnId>) => void
+  onOpenDrawerCell?: (cell: EditingCell<ColumnId>) => void
   drawerModal?: boolean
   disablePointerDismissal?: boolean
   onRowsChange?: (rows: Row[]) => void

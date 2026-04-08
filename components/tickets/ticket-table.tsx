@@ -50,6 +50,7 @@ import { cn } from "@/lib/utils"
 type TicketTableProps = {
   tickets: Ticket[]
   sortPreset: TicketSortPreset
+  onOpenTicket?: (ticketId: string) => void
   onTicketsChange?: (tickets: Ticket[]) => void
   onToolbarPropsChange?: (
     props: DataGridToolbarRenderProps<TicketColumnId> | null
@@ -417,6 +418,7 @@ function renderStaticTicketCell(ticket: Ticket, columnId: TicketColumnId) {
 export function TicketTable({
   tickets,
   sortPreset,
+  onOpenTicket,
   onTicketsChange,
   onToolbarPropsChange,
 }: TicketTableProps) {
@@ -487,6 +489,7 @@ export function TicketTable({
         }}
         onRowsChange={onTicketsChange}
         onToolbarPropsChange={onToolbarPropsChange}
+        onOpenDrawerCell={(cell) => onOpenTicket?.(cell.rowId)}
         canOpenDrawer={(columnId) => columnId === "subject"}
         getDrawerCellValue={(ticket, columnId) =>
           renderStaticTicketCell(ticket, columnId)

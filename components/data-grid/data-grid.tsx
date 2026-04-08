@@ -47,6 +47,7 @@ export function DataGrid<Row extends DataGridRowBase, ColumnId extends string>({
   renderDrawerPanel,
   renderToolbar,
   onToolbarPropsChange,
+  onOpenDrawerCell,
   drawerModal = false,
   disablePointerDismissal = true,
   onRowsChange,
@@ -269,7 +270,14 @@ export function DataGrid<Row extends DataGridRowBase, ColumnId extends string>({
           cancelEdit={cancelEdit}
           canOpenDrawer={canOpenDrawer}
           renderCell={renderCell}
-          onOpenDrawer={setDrawerCell}
+          onOpenDrawer={(cell) => {
+            if (onOpenDrawerCell) {
+              onOpenDrawerCell(cell)
+              return
+            }
+
+            setDrawerCell(cell)
+          }}
           selectedRowIds={selectedRowIds}
           allVisibleRowsSelected={allVisibleRowsSelected}
           someVisibleRowsSelected={someVisibleRowsSelected}

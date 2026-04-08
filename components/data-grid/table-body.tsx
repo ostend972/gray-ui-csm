@@ -146,10 +146,10 @@ export function DataGridTableBody<
                         <Button
                           type="button"
                           variant="outline"
-                          size="icon"
+                          size="xs"
                           aria-label={`Open details for ${getRowLabel(row)} ${column.label}`}
                           title="Open drawer"
-                          className="border-ring/20 bg-muted text-muted-foreground hover:border-ring/30 hover:bg-muted hover:text-foreground"
+                          className="h-7 rounded-xl border-ring/20 bg-muted px-2.5 text-muted-foreground hover:border-ring/30 hover:bg-muted hover:text-foreground"
                           onPointerDown={(event) => {
                             event.stopPropagation()
                           }}
@@ -162,6 +162,7 @@ export function DataGridTableBody<
                           }}
                         >
                           <IconExternalLink className="size-4" />
+                          Open
                         </Button>
                       </div>
                     ) : null}

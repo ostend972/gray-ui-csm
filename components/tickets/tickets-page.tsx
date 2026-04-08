@@ -14,6 +14,7 @@ import {
   type DataGridToolbarRenderProps,
 } from "@/components/data-grid"
 import { TicketBoard } from "@/components/tickets/ticket-board"
+import { TicketDrawer } from "@/components/tickets/ticket-drawer"
 import { TicketSearchToolbar } from "@/components/tickets/ticket-search-toolbar"
 import { TicketStats } from "@/components/tickets/ticket-stats"
 import {
@@ -196,6 +197,7 @@ export function TicketsPage({
   const resolvedLayout = getLayoutFromSearchParam(
     searchParams.get("layout") ?? initialLayout
   )
+  const activeTicketId = searchParams.get("ticket")
 
   const [ticketItems, setTicketItems] = useState(initialTickets)
   const [isStatsExpanded, setIsStatsExpanded] = useState(true)
@@ -208,6 +210,7 @@ export function TicketsPage({
     useState<TicketLayoutMode>(resolvedLayout)
   const [tableToolbarProps, setTableToolbarProps] =
     useState<DataGridToolbarRenderProps<TicketColumnId> | null>(null)
+  const [messageDrafts, setMessageDrafts] = useState<Record<string, string>>({})
 
   useEffect(() => {
     setActiveLayout(resolvedLayout)
@@ -266,6 +269,38 @@ export function TicketsPage({
     )
   }, [filteredTickets])
 
+  const drawerAssigneeOptions = useMemo(() => {
+    const optionsMap = new Map<string, TicketAssignee>()
+
+    ticketItems.forEach((ticket) => {
+      if (!ticket.assignee) return
+      if (optionsMap.has(ticket.assignee.name)) return
+      optionsMap.set(ticket.assignee.name, ticket.assignee)
+    })
+
+    return Array.from(optionsMap.values()).sort((left, right) =>
+      left.name.localeCompare(right.name)
+    )
+  }, [ticketItems])
+
+  const activeTicket = useMemo(
+    () =>
+      activeTicketId
+        ? ticketItems.find((ticket) => ticket.id === activeTicketId) ?? null
+        : null,
+    [activeTicketId, ticketItems]
+  )
+
+  const activeDraft = activeTicketId ? messageDrafts[activeTicketId] ?? "" : ""
+
+  const replaceSearchParams = (nextSearchParams: URLSearchParams) => {
+    startTransition(() => {
+      router.replace(`${pathname}?${nextSearchParams.toString()}`, {
+        scroll: false,
+      })
+    })
+  }
+
   const handleVisibleTicketsChange = (nextVisibleTickets: Ticket[]) => {
     const updates = new Map(
       nextVisibleTickets.map((ticket) => [ticket.id, ticket] as const)
@@ -273,6 +308,17 @@ export function TicketsPage({
 
     setTicketItems((previousTickets) =>
       previousTickets.map((ticket) => updates.get(ticket.id) ?? ticket)
+    )
+  }
+
+  const updateTicketItem = (
+    ticketId: string,
+    updater: (currentTicket: Ticket) => Ticket
+  ) => {
+    setTicketItems((previousTickets) =>
+      previousTickets.map((ticket) =>
+        ticket.id === ticketId ? updater(ticket) : ticket
+      )
     )
   }
 
@@ -371,6 +417,60 @@ export function TicketsPage({
         }
       })
     })
+  }
+
+  const handleOpenTicket = (ticketId: string) => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString())
+    nextSearchParams.set("view", activeView)
+    nextSearchParams.set("layout", activeLayout)
+    nextSearchParams.set("ticket", ticketId)
+    replaceSearchParams(nextSearchParams)
+  }
+
+  const handleCloseTicket = () => {
+    if (
+      activeTicketId &&
+      activeDraft.trim().length > 0 &&
+      !window.confirm("You have an unsent draft. Close the drawer anyway?")
+    ) {
+      return
+    }
+
+    const nextSearchParams = new URLSearchParams(searchParams.toString())
+    nextSearchParams.delete("ticket")
+    nextSearchParams.set("view", activeView)
+    nextSearchParams.set("layout", activeLayout)
+    replaceSearchParams(nextSearchParams)
+  }
+
+  const handleDrawerOpenChange = (open: boolean) => {
+    if (!open) {
+      handleCloseTicket()
+    }
+  }
+
+  const handleDraftMessageChange = (nextDraft: string) => {
+    if (!activeTicketId) return
+
+    setMessageDrafts((currentDrafts) => ({
+      ...currentDrafts,
+      [activeTicketId]: nextDraft,
+    }))
+  }
+
+  const handleSubmitMessage = (ticketId: string) => {
+    const draft = messageDrafts[ticketId]?.trim()
+    if (!draft) return
+
+    setMessageDrafts((currentDrafts) => ({
+      ...currentDrafts,
+      [ticketId]: "",
+    }))
+
+    updateTicketItem(ticketId, (ticket) => ({
+      ...ticket,
+      queueStatus: ticket.queueStatus === "open" ? "pending" : ticket.queueStatus,
+    }))
   }
 
   return (
@@ -587,15 +687,28 @@ export function TicketsPage({
         <TicketTable
           tickets={filteredTickets}
           sortPreset={sortPreset}
+          onOpenTicket={handleOpenTicket}
           onTicketsChange={handleVisibleTicketsChange}
           onToolbarPropsChange={setTableToolbarProps}
         />
       ) : (
         <TicketBoard
           tickets={filteredTickets}
+          onOpenTicket={handleOpenTicket}
           onMoveTicket={handleMoveTicket}
         />
       )}
+
+      <TicketDrawer
+        open={activeTicket !== null}
+        ticket={activeTicket}
+        assigneeOptions={drawerAssigneeOptions}
+        draftMessage={activeDraft}
+        onDraftMessageChange={handleDraftMessageChange}
+        onOpenChange={handleDrawerOpenChange}
+        onUpdateTicket={updateTicketItem}
+        onSubmitMessage={handleSubmitMessage}
+      />
     </div>
   )
 }
