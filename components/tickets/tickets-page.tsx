@@ -25,6 +25,7 @@ import {
   type TicketSortPreset,
 } from "@/components/tickets/ticket-table"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -261,6 +262,8 @@ export function TicketsPage({
   const [createTicketDraft, setCreateTicketDraft] = useState<Ticket | null>(
     null
   )
+  const [isDiscardDraftDialogOpen, setIsDiscardDraftDialogOpen] =
+    useState(false)
 
   useEffect(() => {
     setActiveLayout(resolvedLayout)
@@ -533,15 +536,7 @@ export function TicketsPage({
     replaceSearchParams(nextSearchParams)
   }
 
-  const handleCloseTicket = () => {
-    if (
-      activeTicketId &&
-      activeDraft.trim().length > 0 &&
-      !window.confirm("You have an unsent draft. Close the drawer anyway?")
-    ) {
-      return
-    }
-
+  const closeTicketImmediately = () => {
     const nextSearchParams = new URLSearchParams(searchParams.toString())
     nextSearchParams.delete("ticket")
     nextSearchParams.set("view", activeView)
@@ -562,6 +557,15 @@ export function TicketsPage({
     }
 
     replaceSearchParams(nextSearchParams)
+  }
+
+  const handleCloseTicket = () => {
+    if (activeTicketId && activeDraft.trim().length > 0) {
+      setIsDiscardDraftDialogOpen(true)
+      return
+    }
+
+    closeTicketImmediately()
   }
 
   const handleDrawerOpenChange = (open: boolean) => {
@@ -902,6 +906,20 @@ export function TicketsPage({
         onUpdateTicket={updateTicketItem}
         onSubmitMessage={handleSubmitMessage}
         onReplyFromAddressChange={handleReplyFromAddressChange}
+      />
+
+      <ConfirmDialog
+        open={isDiscardDraftDialogOpen}
+        onOpenChange={setIsDiscardDraftDialogOpen}
+        title="Discard unsent draft?"
+        description="Your current reply has not been sent yet. If you close the drawer now, the draft will be lost."
+        cancelLabel="Keep editing"
+        confirmLabel="Discard draft"
+        confirmVariant="default"
+        onConfirm={() => {
+          setIsDiscardDraftDialogOpen(false)
+          closeTicketImmediately()
+        }}
       />
     </div>
   )

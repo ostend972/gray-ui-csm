@@ -547,6 +547,7 @@ function TicketDrawerPanel({
 
       <div className="min-h-0 flex-1 overflow-hidden">
         <div
+          data-layout={isExpanded ? "split" : "stacked"}
           className={cn(
             "grid h-full min-h-0 grid-cols-1 transition-[grid-template-columns] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
             isExpanded && "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]"
@@ -554,13 +555,20 @@ function TicketDrawerPanel({
         >
           <section
             className={cn(
-              "flex min-h-0 min-h-[14rem] flex-col px-5 py-5 transition-[border-color,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none lg:translate-x-0 lg:opacity-100",
+              "flex min-h-0 min-h-[14rem] flex-col px-5 py-5 transition-[border-color,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
               isExpanded
                 ? "order-1 border-b border-border/70 lg:border-r lg:border-b-0"
                 : "order-2 border-t border-border/70"
             )}
           >
-            <div className="flex min-h-0 flex-1 flex-col">
+            <div
+              className={cn(
+                "flex min-h-0 flex-1 flex-col transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                isExpanded
+                  ? "lg:translate-x-0 lg:opacity-100 lg:delay-75"
+                  : "lg:translate-x-2 lg:opacity-95"
+              )}
+            >
               <div>
                 <div className="text-sm font-semibold text-foreground/80">
                   Message
@@ -625,7 +633,14 @@ function TicketDrawerPanel({
                 </div>
               </div>
 
-              <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-background">
+              <div
+                className={cn(
+                  "mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-background transition-[box-shadow,border-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                  isExpanded
+                    ? "lg:translate-y-0 lg:shadow-[0_18px_40px_-28px_rgba(15,23,42,0.28)]"
+                    : "lg:translate-y-1"
+                )}
+              >
                 <textarea
                   ref={composerRef}
                   rows={3}
@@ -782,11 +797,18 @@ function TicketDrawerPanel({
 
           <section
             className={cn(
-              "scrollbar-hidden relative min-h-0 overflow-y-auto px-5 py-5 transition-[border-color,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none lg:translate-x-0 lg:opacity-100",
+              "scrollbar-hidden relative min-h-0 overflow-y-auto px-5 py-5 transition-[border-color,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
               isExpanded ? "order-2" : "order-1"
             )}
           >
-            <div className="space-y-5">
+            <div
+              className={cn(
+                "space-y-5 transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                isExpanded
+                  ? "lg:translate-x-0 lg:opacity-100 lg:delay-50"
+                  : "lg:-translate-x-2 lg:opacity-100"
+              )}
+            >
               <MetadataField label="Ticket Name">
                 <Input
                   value={ticket.subject}
