@@ -41,6 +41,7 @@ import type {
   Ticket,
   TicketCategoryKey,
   TicketChannel,
+  TicketDrawerOrigin,
   TicketHealth,
   TicketPriority,
   TicketQueueStatus,
@@ -50,7 +51,7 @@ import { cn } from "@/lib/utils"
 type TicketTableProps = {
   tickets: Ticket[]
   sortPreset: TicketSortPreset
-  onOpenTicket?: (ticketId: string) => void
+  onOpenTicket?: (ticketId: string, origin?: TicketDrawerOrigin) => void
   onTicketsChange?: (tickets: Ticket[]) => void
   onToolbarPropsChange?: (
     props: DataGridToolbarRenderProps<TicketColumnId> | null
@@ -489,7 +490,19 @@ export function TicketTable({
         }}
         onRowsChange={onTicketsChange}
         onToolbarPropsChange={onToolbarPropsChange}
-        onOpenDrawerCell={(cell) => onOpenTicket?.(cell.rowId)}
+        onOpenDrawerCell={(cell) =>
+          onOpenTicket?.(
+            cell.rowId,
+            cell.originRect
+              ? {
+                  x: cell.originRect.x,
+                  y: cell.originRect.y,
+                  width: cell.originRect.width,
+                  height: cell.originRect.height,
+                }
+              : undefined
+          )
+        }
         canOpenDrawer={(columnId) => columnId === "subject"}
         getDrawerCellValue={(ticket, columnId) =>
           renderStaticTicketCell(ticket, columnId)

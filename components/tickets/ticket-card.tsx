@@ -12,7 +12,7 @@ type TicketCardProps = {
   ticket: Ticket
   isDragging?: boolean
   isRecentlyMoved?: boolean
-  onClick?: () => void
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void
 }
 
 function TicketChannelIcon({ channel }: { channel: Ticket["channel"] }) {

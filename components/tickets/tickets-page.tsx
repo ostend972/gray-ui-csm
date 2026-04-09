@@ -43,6 +43,7 @@ import type {
   TicketAssignee,
   TicketLayoutMode,
   Ticket,
+  TicketDrawerOrigin,
   TicketPerson,
   TicketPriority,
   TicketQueueStatus,
@@ -260,6 +261,9 @@ export function TicketsPage({
     Record<string, string>
   >({})
   const [createTicketDraft, setCreateTicketDraft] = useState<Ticket | null>(
+    null
+  )
+  const [drawerOrigin, setDrawerOrigin] = useState<TicketDrawerOrigin | null>(
     null
   )
   const [isDiscardDraftDialogOpen, setIsDiscardDraftDialogOpen] =
@@ -517,7 +521,8 @@ export function TicketsPage({
     })
   }
 
-  const handleOpenTicket = (ticketId: string) => {
+  const handleOpenTicket = (ticketId: string, origin?: TicketDrawerOrigin) => {
+    setDrawerOrigin(origin ?? null)
     const nextSearchParams = new URLSearchParams(searchParams.toString())
     nextSearchParams.set("view", activeView)
     nextSearchParams.set("layout", activeLayout)
@@ -525,7 +530,19 @@ export function TicketsPage({
     replaceSearchParams(nextSearchParams)
   }
 
-  const handleCreateTicket = () => {
+  const handleCreateTicket = (
+    event?: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    if (event) {
+      const rect = event.currentTarget.getBoundingClientRect()
+      setDrawerOrigin({
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      })
+    }
+
     const nextSequence = getNextTicketSequence(ticketItems)
     setCreateTicketDraft(createDraftTicket(nextSequence))
 
@@ -901,6 +918,7 @@ export function TicketsPage({
         peopleOptions={drawerPeopleOptions}
         draftMessage={activeDraft}
         replyFromAddress={activeReplyFrom}
+        origin={drawerOrigin}
         onDraftMessageChange={handleDraftMessageChange}
         onOpenChange={handleDrawerOpenChange}
         onUpdateTicket={updateTicketItem}

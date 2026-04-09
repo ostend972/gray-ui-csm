@@ -158,7 +158,22 @@ export function DataGridTableBody<
                           }}
                           onClick={(event) => {
                             event.stopPropagation()
-                            onOpenDrawer({ rowId: row.id, columnId: column.id })
+                            const originElement =
+                              event.currentTarget.closest("td") ??
+                              event.currentTarget
+                            const originRect =
+                              originElement.getBoundingClientRect()
+
+                            onOpenDrawer({
+                              rowId: row.id,
+                              columnId: column.id,
+                              originRect: {
+                                x: originRect.x,
+                                y: originRect.y,
+                                width: originRect.width,
+                                height: originRect.height,
+                              },
+                            })
                           }}
                         >
                           <IconExternalLink className="size-4" />

@@ -22,11 +22,15 @@ import { CSS } from "@dnd-kit/utilities"
 import { TicketCard } from "@/components/tickets/ticket-card"
 import { TicketColumn } from "@/components/tickets/ticket-column"
 import { ticketBoardColumns } from "@/lib/tickets/mock-data"
-import type { Ticket, TicketQueueStatus } from "@/lib/tickets/types"
+import type {
+  Ticket,
+  TicketDrawerOrigin,
+  TicketQueueStatus,
+} from "@/lib/tickets/types"
 
 type TicketBoardProps = {
   tickets: Ticket[]
-  onOpenTicket?: (ticketId: string) => void
+  onOpenTicket?: (ticketId: string, origin?: TicketDrawerOrigin) => void
   onMoveTicket: (
     ticketId: string,
     queueStatus: TicketQueueStatus,
@@ -308,7 +312,7 @@ function SortableTicketCard({
 }: {
   ticket: Ticket
   isRecentlyMoved: boolean
-  onOpen?: (ticketId: string) => void
+  onOpen?: (ticketId: string, origin?: TicketDrawerOrigin) => void
 }) {
   const {
     attributes,
@@ -336,7 +340,14 @@ function SortableTicketCard({
         ticket={ticket}
         isDragging={isDragging}
         isRecentlyMoved={isRecentlyMoved}
-        onClick={() => onOpen?.(ticket.id)}
+        onClick={(event) =>
+          onOpen?.(ticket.id, {
+            x: event.currentTarget.getBoundingClientRect().x,
+            y: event.currentTarget.getBoundingClientRect().y,
+            width: event.currentTarget.getBoundingClientRect().width,
+            height: event.currentTarget.getBoundingClientRect().height,
+          })
+        }
       />
     </div>
   )
@@ -349,14 +360,21 @@ function StaticTicketCard({
 }: {
   ticket: Ticket
   isRecentlyMoved: boolean
-  onOpen?: (ticketId: string) => void
+  onOpen?: (ticketId: string, origin?: TicketDrawerOrigin) => void
 }) {
   return (
     <div className="mb-2">
       <TicketCard
         ticket={ticket}
         isRecentlyMoved={isRecentlyMoved}
-        onClick={() => onOpen?.(ticket.id)}
+        onClick={(event) =>
+          onOpen?.(ticket.id, {
+            x: event.currentTarget.getBoundingClientRect().x,
+            y: event.currentTarget.getBoundingClientRect().y,
+            width: event.currentTarget.getBoundingClientRect().width,
+            height: event.currentTarget.getBoundingClientRect().height,
+          })
+        }
       />
     </div>
   )
@@ -425,9 +443,9 @@ export function TicketBoard({
     ? tickets.find((ticket) => ticket.id === draggingTicketId) ?? null
     : null
 
-  const handleOpenTicket = (ticketId: string) => {
+  const handleOpenTicket = (ticketId: string, origin?: TicketDrawerOrigin) => {
     if (suppressClickRef.current) return
-    onOpenTicket?.(ticketId)
+    onOpenTicket?.(ticketId, origin)
   }
 
   if (!isClientReady) {

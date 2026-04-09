@@ -48,6 +48,7 @@ import { currentUser, replyFromAccounts } from "@/lib/current-user"
 import type {
   Ticket,
   TicketAssignee,
+  TicketDrawerOrigin,
   TicketPerson,
   TicketPriority,
   TicketSubmitAction,
@@ -65,6 +66,7 @@ type TicketDrawerProps = {
   peopleOptions: TicketPerson[]
   draftMessage: string
   replyFromAddress?: string
+  origin?: TicketDrawerOrigin | null
   onDraftMessageChange: (nextDraft: string) => void
   onOpenChange: (open: boolean) => void
   onUpdateTicket: (
@@ -143,6 +145,22 @@ function getInitials(name?: string) {
     .join("")
     .slice(0, 2)
     .toUpperCase()
+}
+
+function getDrawerMotionStyle(origin?: TicketDrawerOrigin | null) {
+  if (!origin || typeof window === "undefined") return undefined
+
+  const centerY = origin.y + origin.height / 2
+  const viewportCenterY = window.innerHeight / 2
+  const shiftY = Math.max(-14, Math.min(14, (centerY - viewportCenterY) / 20))
+  const exitShiftY = Math.max(-8, Math.min(8, shiftY * 0.4))
+
+  return {
+    "--drawer-slide-enter-x": `${Math.max(44, Math.min(72, origin.width * 0.35)).toFixed(1)}px`,
+    "--drawer-slide-exit-x": "40px",
+    "--drawer-origin-enter-y": `${shiftY.toFixed(1)}px`,
+    "--drawer-origin-exit-y": `${exitShiftY.toFixed(1)}px`,
+  } as React.CSSProperties
 }
 
 function MetadataField({
@@ -240,31 +258,89 @@ export function TicketDrawer({ open, ticket, ...props }: TicketDrawerProps) {
   const [expandedByTicketId, setExpandedByTicketId] = useState<
     Record<string, boolean>
   >({})
-  const isExpanded = ticket ? (expandedByTicketId[ticket.id] ?? false) : false
+  const [renderedState, setRenderedState] = useState<{
+    mode: TicketDrawerMode
+    ticket: Ticket
+    assigneeOptions: TicketAssignee[]
+    peopleOptions: TicketPerson[]
+    draftMessage: string
+    replyFromAddress?: string
+    origin?: TicketDrawerOrigin | null
+  } | null>(null)
+
+  useEffect(() => {
+    if (!ticket) return
+
+    const frame = requestAnimationFrame(() => {
+      setRenderedState({
+        mode: props.mode,
+        ticket,
+        assigneeOptions: props.assigneeOptions,
+        peopleOptions: props.peopleOptions,
+        draftMessage: props.draftMessage,
+        replyFromAddress: props.replyFromAddress,
+        origin: props.origin,
+      })
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [
+    ticket,
+    props.assigneeOptions,
+    props.draftMessage,
+    props.mode,
+    props.peopleOptions,
+    props.replyFromAddress,
+    props.origin,
+  ])
+
+  const panelState =
+    ticket !== null
+      ? {
+          mode: props.mode,
+          ticket,
+          assigneeOptions: props.assigneeOptions,
+          peopleOptions: props.peopleOptions,
+          draftMessage: props.draftMessage,
+          replyFromAddress: props.replyFromAddress,
+          origin: props.origin,
+        }
+      : renderedState
+
+  const renderedTicketId = panelState?.ticket.id
+  const renderedIsExpanded = renderedTicketId
+    ? (expandedByTicketId[renderedTicketId] ?? false)
+    : false
 
   return (
     <Sheet open={open} onOpenChange={props.onOpenChange}>
       <SheetContent
         side="right"
         showCloseButton={false}
+        style={getDrawerMotionStyle(panelState?.origin)}
         className={cn(
-          "overflow-hidden p-0 transition-[width,transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width,transform] motion-reduce:transition-none data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 sm:shadow-2xl sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:w-[min(calc(100vw-1.5rem),clamp(34rem,36vw,46rem))] sm:data-[side=right]:max-w-none sm:data-[side=right]:rounded-[22px] sm:data-[side=right]:border",
-          isExpanded &&
+          "overflow-hidden p-0 transition-[width,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width,transform] motion-reduce:transition-none data-starting-style:translate-x-[var(--drawer-slide-enter-x,3rem)] data-ending-style:translate-x-[var(--drawer-slide-exit-x,2.5rem)] data-starting-style:translate-y-[var(--drawer-origin-enter-y,0px)] data-ending-style:translate-y-[var(--drawer-origin-exit-y,0px)] data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 sm:shadow-2xl sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:w-[min(calc(100vw-1.5rem),clamp(34rem,36vw,46rem))] sm:data-[side=right]:max-w-none sm:data-[side=right]:rounded-[22px] sm:data-[side=right]:border",
+          renderedIsExpanded &&
             "lg:data-[side=right]:w-[min(calc(100vw-2rem),clamp(60rem,72vw,78rem))]"
         )}
       >
-        {ticket ? (
+        {panelState ? (
           <TicketDrawerPanel
-            key={ticket.id}
-            ticket={ticket}
-            isExpanded={isExpanded}
+            {...props}
+            key={panelState.ticket.id}
+            ticket={panelState.ticket}
+            mode={panelState.mode}
+            assigneeOptions={panelState.assigneeOptions}
+            peopleOptions={panelState.peopleOptions}
+            draftMessage={panelState.draftMessage}
+            replyFromAddress={panelState.replyFromAddress}
+            isExpanded={renderedIsExpanded}
             onExpandedChange={(nextExpanded) =>
               setExpandedByTicketId((currentState) => ({
                 ...currentState,
-                [ticket.id]: nextExpanded,
+                [panelState.ticket.id]: nextExpanded,
               }))
             }
-            {...props}
           />
         ) : null}
       </SheetContent>
@@ -451,7 +527,11 @@ function TicketDrawerPanel({
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background transition-[background-color] duration-300 motion-reduce:transition-none">
-      <header className="sticky top-0 z-20 border-b border-border/70 bg-background/95 px-5 py-4 backdrop-blur-xl transition-[background-color,border-color] duration-300 motion-reduce:transition-none">
+      <header
+        className={cn(
+          "sticky top-0 z-20 border-b border-border/70 bg-background/95 px-5 py-4 backdrop-blur-xl transition-[background-color,border-color,opacity,transform] duration-300 motion-reduce:transition-none group-data-[starting-style]/drawer-sheet:translate-x-4 group-data-[starting-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:delay-75 group-data-[ending-style]/drawer-sheet:translate-x-2 group-data-[ending-style]/drawer-sheet:opacity-0"
+        )}
+      >
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground ring-1 ring-foreground/15">
@@ -545,7 +625,11 @@ function TicketDrawerPanel({
         </div>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-hidden">
+      <div
+        className={cn(
+          "min-h-0 flex-1 overflow-hidden transition-[opacity,transform] duration-300 motion-reduce:transition-none group-data-[starting-style]/drawer-sheet:translate-x-3 group-data-[starting-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:delay-100 group-data-[ending-style]/drawer-sheet:translate-x-2 group-data-[ending-style]/drawer-sheet:opacity-0"
+        )}
+      >
         <div
           data-layout={isExpanded ? "split" : "stacked"}
           className={cn(
@@ -1158,7 +1242,11 @@ function TicketDrawerPanel({
         </div>
       </div>
 
-      <footer className="sticky bottom-0 z-20 border-t border-border/70 bg-background/95 px-5 py-4 backdrop-blur-xl transition-[background-color,border-color] duration-300 motion-reduce:transition-none">
+      <footer
+        className={cn(
+          "sticky bottom-0 z-20 border-t border-border/70 bg-background/95 px-5 py-4 backdrop-blur-xl transition-[background-color,border-color,opacity,transform] duration-300 motion-reduce:transition-none group-data-[starting-style]/drawer-sheet:translate-x-4 group-data-[starting-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:delay-150 group-data-[ending-style]/drawer-sheet:translate-x-2 group-data-[ending-style]/drawer-sheet:opacity-0"
+        )}
+      >
         <div className="flex items-center justify-end gap-3">
           <Button
             type="button"

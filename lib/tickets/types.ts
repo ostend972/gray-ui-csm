@@ -21,6 +21,13 @@ export type TicketLayoutMode = "board" | "table"
 
 export type TicketSubmitAction = "send" | "pending" | "resolved"
 
+export type TicketDrawerOrigin = {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 export type TicketCategoryKey =
   | "billing"
   | "technical"

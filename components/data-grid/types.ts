@@ -82,4 +82,10 @@ export type DataGridProps<
 export type EditingCell<ColumnId extends string> = {
   rowId: string
   columnId: ColumnId
+  originRect?: {
+    x: number
+    y: number
+    width: number
+    height: number
+  }
 }
