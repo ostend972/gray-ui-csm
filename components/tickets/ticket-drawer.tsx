@@ -1,9 +1,11 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
+  IconCheck,
   IconChevronDown,
+  IconClock,
   IconDots,
   IconExternalLink,
   IconLink,
@@ -11,10 +13,11 @@ import {
   IconMoodSmile,
   IconPaperclip,
   IconPhoto,
+  IconPlus,
   IconSearch,
+  IconSend,
   IconTag,
   IconTicket,
-  IconUser,
   IconX,
 } from "@tabler/icons-react"
 
@@ -29,6 +32,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
@@ -70,7 +74,7 @@ type TicketDrawerProps = {
   onReplyFromAddressChange: (ticketId: string, nextAddress: string) => void
 }
 
-const macroOptions = [
+const templateOptions = [
   "Hello! We're here to help you with any inquiries.",
   "Hi! Our Customer Service team is at your service.",
   "Welcome! Feel free to reach out to us for support.",
@@ -97,22 +101,26 @@ const priorityOptions: Array<{
 const replyActionOptions: Array<{
   action: TicketSubmitAction
   label: string
-  description: string
+  shortcut: string
+  icon: React.ReactNode
 }> = [
   {
     action: "send",
     label: "Send reply",
-    description: "Reply and keep the current workflow moving.",
+    shortcut: "⌘↵",
+    icon: <IconSend className="size-4 text-muted-foreground" />,
   },
   {
     action: "pending",
     label: "Send and mark pending",
-    description: "Reply and wait for the customer or another team.",
+    shortcut: "⌘⇧P",
+    icon: <IconClock className="size-4 text-muted-foreground" />,
   },
   {
     action: "resolved",
     label: "Send and resolve",
-    description: "Reply and close the loop when the issue is solved.",
+    shortcut: "⌘⇧R",
+    icon: <IconCheck className="size-4 text-muted-foreground" />,
   },
 ]
 
@@ -195,10 +203,12 @@ function PersonAvatar({
 
 function TokenPill({
   label,
+  leading,
   onRemove,
   className,
 }: {
   label: string
+  leading?: React.ReactNode
   onRemove: () => void
   className?: string
 }) {
@@ -209,7 +219,10 @@ function TokenPill({
         className
       )}
     >
-      <span className="truncate">{label}</span>
+      <span className="inline-flex min-w-0 items-center gap-1.5">
+        {leading}
+        <span className="truncate">{label}</span>
+      </span>
       <button
         type="button"
         className="rounded-full text-muted-foreground transition hover:text-foreground"
@@ -234,7 +247,7 @@ export function TicketDrawer({ open, ticket, ...props }: TicketDrawerProps) {
         side="right"
         showCloseButton={false}
         className={cn(
-          "p-0 data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 sm:shadow-2xl sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:w-[min(calc(100vw-1.5rem),clamp(34rem,36vw,46rem))] sm:data-[side=right]:max-w-none sm:data-[side=right]:rounded-[28px] sm:data-[side=right]:border",
+          "overflow-hidden p-0 data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 sm:shadow-2xl sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:w-[min(calc(100vw-1.5rem),clamp(34rem,36vw,46rem))] sm:data-[side=right]:max-w-none sm:data-[side=right]:rounded-[22px] sm:data-[side=right]:border",
           isExpanded &&
             "lg:data-[side=right]:w-[min(calc(100vw-2rem),clamp(60rem,72vw,78rem))]"
         )}
@@ -279,8 +292,10 @@ function TicketDrawerPanel({
 }) {
   const router = useRouter()
   const composerRef = useRef<HTMLTextAreaElement>(null)
-  const [macroQuery, setMacroQuery] = useState("")
+  const tagInputRef = useRef<HTMLInputElement>(null)
+  const [templateQuery, setTemplateQuery] = useState("")
   const [tagInputValue, setTagInputValue] = useState("")
+  const [isTagComposerOpen, setIsTagComposerOpen] = useState(false)
 
   const updateTicket = (updater: (currentTicket: Ticket) => Ticket) => {
     onUpdateTicket(ticket.id, updater)
@@ -333,19 +348,23 @@ function TicketDrawerPanel({
       person.name !== ticket.requester?.name &&
       !followers.some((follower) => follower.name === person.name)
   )
-  const filteredMacros = macroOptions.filter((macro) =>
-    macro.toLowerCase().includes(macroQuery.trim().toLowerCase())
+  const filteredTemplates = templateOptions.filter((template) =>
+    template.toLowerCase().includes(templateQuery.trim().toLowerCase())
   )
 
   const commitTagInput = () => {
     const nextTag = tagInputValue.trim()
-    if (!nextTag || tags.includes(nextTag)) return
+    if (!nextTag || tags.includes(nextTag)) {
+      setIsTagComposerOpen(false)
+      return
+    }
 
     updateTicket((currentTicket) => ({
       ...currentTicket,
       tags: [...(currentTicket.tags ?? []), nextTag],
     }))
     setTagInputValue("")
+    setIsTagComposerOpen(false)
   }
 
   const insertComposerSnippet = ({
@@ -393,6 +412,41 @@ function TicketDrawerPanel({
     mode === "create"
       ? ticket.subject.trim().length === 0
       : draftMessage.trim().length === 0
+
+  useEffect(() => {
+    if (mode !== "edit") return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const hasPrimaryModifier = event.metaKey || event.ctrlKey
+      if (!hasPrimaryModifier || primaryActionDisabled) return
+
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault()
+        onSubmitMessage(ticket.id, "send")
+      }
+
+      if (event.shiftKey && event.key.toLowerCase() === "p") {
+        event.preventDefault()
+        onSubmitMessage(ticket.id, "pending")
+      }
+
+      if (event.shiftKey && event.key.toLowerCase() === "r") {
+        event.preventDefault()
+        onSubmitMessage(ticket.id, "resolved")
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [mode, onSubmitMessage, primaryActionDisabled, ticket.id])
+
+  useEffect(() => {
+    if (!isTagComposerOpen) return
+
+    requestAnimationFrame(() => {
+      tagInputRef.current?.focus()
+    })
+  }, [isTagComposerOpen])
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background">
@@ -542,7 +596,7 @@ function TicketDrawerPanel({
                               className={cn(
                                 "mb-2 rounded-xl border border-border/70 px-3 py-3",
                                 selectedReplyFromAddress === account.address &&
-                                  "border-primary/40 bg-primary/10 text-foreground"
+                                  "border-white/10 bg-white/10 text-foreground"
                               )}
                             >
                               <div className="min-w-0">
@@ -672,7 +726,7 @@ function TicketDrawerPanel({
                           />
                         }
                       >
-                        Macros
+                        Templates
                         <IconChevronDown className="size-4 text-muted-foreground" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
@@ -681,38 +735,38 @@ function TicketDrawerPanel({
                       >
                         <div className="border-b border-border/70 px-4 py-3">
                           <div className="text-sm font-semibold text-foreground">
-                            Add Macros
+                            Add Templates
                           </div>
                           <div className="relative mt-3">
                             <IconSearch className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
-                              value={macroQuery}
+                              value={templateQuery}
                               onChange={(event) =>
-                                setMacroQuery(event.target.value)
+                                setTemplateQuery(event.target.value)
                               }
-                              placeholder="Search macros"
+                              placeholder="Search templates"
                               className="h-10 rounded-xl border-border/70 pl-9"
                             />
                           </div>
                         </div>
-                        <div className="max-h-72 overflow-y-auto px-2 py-2">
+                        <div className="scrollbar-hidden max-h-72 overflow-y-auto px-2 py-2">
                           <div className="px-2 py-2 text-xs font-medium text-muted-foreground">
                             General greetings
                           </div>
-                          {filteredMacros.map((macro) => (
+                          {filteredTemplates.map((template) => (
                             <button
-                              key={macro}
+                              key={template}
                               type="button"
                               className="w-full rounded-xl px-2 py-2 text-left text-sm text-foreground/80 transition hover:bg-muted"
                               onClick={() =>
                                 onDraftMessageChange(
-                                  [draftMessage.trim(), macro]
+                                  [draftMessage.trim(), template]
                                     .filter(Boolean)
                                     .join("\n\n")
                                 )
                               }
                             >
-                              {macro}
+                              {template}
                             </button>
                           ))}
                         </div>
@@ -726,7 +780,7 @@ function TicketDrawerPanel({
 
           <section
             className={cn(
-              "relative min-h-0 overflow-y-auto px-5 py-5",
+              "scrollbar-hidden relative min-h-0 overflow-y-auto px-5 py-5",
               isExpanded ? "order-2" : "order-1"
             )}
           >
@@ -757,8 +811,7 @@ function TicketDrawerPanel({
                         variant="outline"
                         className={cn(
                           "h-12 rounded-xl border-border/70 bg-background font-medium text-foreground/70",
-                          isActive &&
-                            "border-primary/40 bg-primary/10 text-foreground"
+                          isActive && "border-border bg-muted text-foreground"
                         )}
                         onClick={() =>
                           updateTicket((currentTicket) => ({
@@ -921,13 +974,36 @@ function TicketDrawerPanel({
                 </MetadataField>
               </div>
 
-              <MetadataField label="Tags">
-                <div className="min-h-28 rounded-xl border border-border/70 bg-background px-3 py-3">
+              <div className="border-b border-border/70 py-3">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div className="inline-flex items-center gap-1.5 text-sm font-medium">
+                    <span>Tags</span>
+                    <span className="text-muted-foreground">
+                      {tags.length > 0 ? `All (${tags.length})` : ""}
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="rounded-md text-muted-foreground"
+                    aria-label="Add tag"
+                    onClick={() => setIsTagComposerOpen((current) => !current)}
+                  >
+                    <IconPlus className="size-4" />
+                  </Button>
+                </div>
+
+                {tags.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {tags.map((tag) => (
                       <TokenPill
                         key={tag}
                         label={tag}
+                        leading={
+                          <IconTag className="size-3.5 text-muted-foreground" />
+                        }
+                        className="rounded-md border border-border bg-muted/70 px-2 py-1 text-sm font-normal"
                         onRemove={() =>
                           updateTicket((currentTicket) => ({
                             ...currentTicket,
@@ -939,9 +1015,17 @@ function TicketDrawerPanel({
                       />
                     ))}
                   </div>
-                  <div className="mt-3 flex items-center gap-2">
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    No tags yet
+                  </div>
+                )}
+
+                {isTagComposerOpen ? (
+                  <div className="mt-3 flex items-center gap-2 rounded-lg border border-border/70 bg-background px-2.5 py-2">
                     <IconTag className="size-4 text-muted-foreground" />
                     <input
+                      ref={tagInputRef}
                       value={tagInputValue}
                       onChange={(event) => setTagInputValue(event.target.value)}
                       onKeyDown={(event) => {
@@ -949,51 +1033,44 @@ function TicketDrawerPanel({
                           event.preventDefault()
                           commitTagInput()
                         }
+
+                        if (event.key === "Escape") {
+                          event.preventDefault()
+                          setIsTagComposerOpen(false)
+                          setTagInputValue("")
+                        }
                       }}
                       onBlur={commitTagInput}
-                      placeholder="Add tags"
+                      placeholder="Add tag"
                       className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                     />
                   </div>
-                </div>
-              </MetadataField>
+                ) : null}
+              </div>
 
-              <MetadataField label="Followers">
-                <div className="min-h-24 rounded-xl border border-border/70 bg-background px-3 py-3">
-                  <div className="flex flex-wrap gap-2">
-                    {followers.map((follower) => (
-                      <TokenPill
-                        key={follower.name}
-                        label={follower.name}
-                        onRemove={() =>
-                          updateTicket((currentTicket) => ({
-                            ...currentTicket,
-                            followers: (currentTicket.followers ?? []).filter(
-                              (currentFollower) =>
-                                currentFollower.name !== follower.name
-                            ),
-                          }))
-                        }
-                      />
-                    ))}
+              <div className="border-b border-border/70 py-3">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div className="inline-flex items-center gap-1.5 text-sm font-medium">
+                    <span>Followers</span>
+                    <span className="text-muted-foreground">
+                      {followers.length > 0 ? `All (${followers.length})` : ""}
+                    </span>
                   </div>
-
                   <DropdownMenu>
                     <DropdownMenuTrigger
                       render={
                         <Button
                           type="button"
                           variant="ghost"
-                          className="mt-3 h-9 rounded-lg px-0 text-muted-foreground"
+                          size="icon-sm"
+                          className="rounded-md text-muted-foreground"
+                          aria-label="Add follower"
                         />
                       }
                     >
-                      <IconUser className="size-4" />
-                      {availableFollowers.length > 0
-                        ? "Add followers"
-                        : "No more followers"}
+                      <IconPlus className="size-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="min-w-52">
+                    <DropdownMenuContent align="end" className="min-w-56">
                       {availableFollowers.length === 0 ? (
                         <DropdownMenuItem disabled>
                           Everyone is already added
@@ -1020,7 +1097,38 @@ function TicketDrawerPanel({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              </MetadataField>
+
+                {followers.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {followers.map((follower) => (
+                      <TokenPill
+                        key={follower.name}
+                        label={follower.name}
+                        leading={
+                          <PersonAvatar
+                            person={follower}
+                            fallbackClassName="text-[11px]"
+                          />
+                        }
+                        className="rounded-md border border-border bg-muted/70 px-2 py-1 text-sm font-normal"
+                        onRemove={() =>
+                          updateTicket((currentTicket) => ({
+                            ...currentTicket,
+                            followers: (currentTicket.followers ?? []).filter(
+                              (currentFollower) =>
+                                currentFollower.name !== follower.name
+                            ),
+                          }))
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    No followers yet
+                  </div>
+                )}
+              </div>
             </div>
           </section>
         </div>
@@ -1083,14 +1191,11 @@ function TicketDrawerPanel({
                       key={option.action}
                       onClick={() => onSubmitMessage(ticket.id, option.action)}
                     >
-                      <div className="min-w-0">
-                        <div className="truncate font-medium">
-                          {option.label}
-                        </div>
-                        <div className="truncate text-xs text-muted-foreground">
-                          {option.description}
-                        </div>
-                      </div>
+                      {option.icon}
+                      {option.label}
+                      <DropdownMenuShortcut>
+                        {option.shortcut}
+                      </DropdownMenuShortcut>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
