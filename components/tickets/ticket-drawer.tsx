@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
+  IconArrowsMaximize,
+  IconArrowsMinimize,
   IconCheck,
   IconChevronDown,
   IconClock,
   IconDots,
-  IconExternalLink,
   IconLink,
   IconMicrophone,
   IconMoodSmile,
@@ -476,9 +477,9 @@ function TicketDrawerPanel({
               onClick={() => onExpandedChange(!isExpanded)}
             >
               {isExpanded ? (
-                <IconExternalLink className="size-4 rotate-180" />
+                <IconArrowsMinimize className="size-4" />
               ) : (
-                <IconExternalLink className="size-4" />
+                <IconArrowsMaximize className="size-4" />
               )}
             </Button>
 
