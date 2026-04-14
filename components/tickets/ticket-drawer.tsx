@@ -608,6 +608,11 @@ function TicketDrawerPanel({
                 <DropdownMenuItem onClick={() => router.push("/accounts")}>
                   Manage accounts
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => router.push(`/tickets/${ticket.id}`)}
+                >
+                  Open full detail page
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 

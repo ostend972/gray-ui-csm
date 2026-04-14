@@ -186,7 +186,14 @@ function matchByPathname(pathname: string) {
   )
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  displayMode?: "default" | "ticket-detail"
+}
+
+export function AppSidebar({
+  displayMode = "default",
+  ...props
+}: AppSidebarProps) {
   const pathname = usePathname()
   const { setOpen, state } = useSidebar()
 
@@ -203,6 +210,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const isTicketsSection = activeItem.title === "Tickets"
   const isSidebarCollapsed = state === "collapsed"
+  const shouldShowSecondaryPanel =
+    displayMode !== "ticket-detail" && !isSidebarCollapsed
 
   return (
     <Sidebar
@@ -219,7 +228,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuItem>
               <SidebarMenuButton
                 size="lg"
-                className="md:h-8 md:p-0 rounded-none overflow-hidden"
+                className="overflow-hidden rounded-none md:h-8 md:p-0"
                 render={<a href="#" />}
               >
                 <div
@@ -260,7 +269,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         setOpen(true)
                       }}
                       isActive={activeItem.title === item.title}
-                      className="px-2.5 text-muted-foreground data-active:text-sidebar-accent-foreground md:px-2 [&_svg]:text-muted-foreground data-active:[&_svg]:text-sidebar-accent-foreground"
+                      className="px-2.5 text-muted-foreground md:px-2 data-active:text-sidebar-accent-foreground [&_svg]:text-muted-foreground data-active:[&_svg]:text-sidebar-accent-foreground"
                     >
                       {item.icon}
                       <span>{item.title}</span>
@@ -273,67 +282,69 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarContent>
       </Sidebar>
 
-      <div
-        aria-hidden={isSidebarCollapsed}
-        className={cn(
-          "hidden h-full min-w-0 shrink-0 overflow-hidden transition-[opacity,transform] duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none md:block",
-          "w-[calc(var(--sidebar-width)-var(--sidebar-width-icon)-1px)]",
-          isSidebarCollapsed
-            ? "pointer-events-none -translate-x-3 opacity-0"
-            : "translate-x-0 opacity-100"
-        )}
-      >
-        <Sidebar collapsible="none" className="h-full min-w-0 w-full">
-          {isTicketsSection ? (
-            <SidebarContent>
-              <Suspense fallback={null}>
-                <TicketSidebarFilters />
-              </Suspense>
-            </SidebarContent>
-          ) : (
-            <>
-              <SidebarHeader className="gap-3.5 border-b p-4">
-                <div className="flex w-full items-center justify-between">
-                  <div className="text-base font-medium text-foreground">
-                    {activeItem.title}
-                  </div>
-                  <Label className="flex items-center gap-2 text-sm">
-                    <span>Unreads</span>
-                    <Switch className="shadow-none" />
-                  </Label>
-                </div>
-                <SidebarInput placeholder="Type to search..." />
-              </SidebarHeader>
-              <SidebarContent>
-                <SidebarGroup className="px-0">
-                  <SidebarGroupContent>
-                    {panelItems.map((item) => (
-                      <a
-                        href="#"
-                        key={`${item.email}-${item.subject}`}
-                        className="flex w-full flex-col items-start gap-2 border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      >
-                        <div className="flex w-full min-w-0 items-center gap-2">
-                          <span className="truncate">{item.name}</span>
-                          <span className="ml-auto shrink-0 text-xs">
-                            {item.date}
-                          </span>
-                        </div>
-                        <span className="w-full truncate font-medium">
-                          {item.subject}
-                        </span>
-                        <span className="line-clamp-2 w-full text-xs whitespace-break-spaces">
-                          {item.teaser}
-                        </span>
-                      </a>
-                    ))}
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              </SidebarContent>
-            </>
+      {shouldShowSecondaryPanel ? (
+        <div
+          aria-hidden={isSidebarCollapsed}
+          className={cn(
+            "hidden h-full min-w-0 shrink-0 overflow-hidden transition-[opacity,transform] duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none md:block",
+            "w-[calc(var(--sidebar-width)-var(--sidebar-width-icon)-1px)]",
+            isSidebarCollapsed
+              ? "pointer-events-none -translate-x-3 opacity-0"
+              : "translate-x-0 opacity-100"
           )}
-        </Sidebar>
-      </div>
+        >
+          <Sidebar collapsible="none" className="h-full w-full min-w-0">
+            {isTicketsSection ? (
+              <SidebarContent>
+                <Suspense fallback={null}>
+                  <TicketSidebarFilters />
+                </Suspense>
+              </SidebarContent>
+            ) : (
+              <>
+                <SidebarHeader className="gap-3.5 border-b p-4">
+                  <div className="flex w-full items-center justify-between">
+                    <div className="text-base font-medium text-foreground">
+                      {activeItem.title}
+                    </div>
+                    <Label className="flex items-center gap-2 text-sm">
+                      <span>Unreads</span>
+                      <Switch className="shadow-none" />
+                    </Label>
+                  </div>
+                  <SidebarInput placeholder="Type to search..." />
+                </SidebarHeader>
+                <SidebarContent>
+                  <SidebarGroup className="px-0">
+                    <SidebarGroupContent>
+                      {panelItems.map((item) => (
+                        <a
+                          href="#"
+                          key={`${item.email}-${item.subject}`}
+                          className="flex w-full flex-col items-start gap-2 border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        >
+                          <div className="flex w-full min-w-0 items-center gap-2">
+                            <span className="truncate">{item.name}</span>
+                            <span className="ml-auto shrink-0 text-xs">
+                              {item.date}
+                            </span>
+                          </div>
+                          <span className="w-full truncate font-medium">
+                            {item.subject}
+                          </span>
+                          <span className="line-clamp-2 w-full text-xs whitespace-break-spaces">
+                            {item.teaser}
+                          </span>
+                        </a>
+                      ))}
+                    </SidebarGroupContent>
+                  </SidebarGroup>
+                </SidebarContent>
+              </>
+            )}
+          </Sidebar>
+        </div>
+      ) : null}
     </Sidebar>
   )
 }
