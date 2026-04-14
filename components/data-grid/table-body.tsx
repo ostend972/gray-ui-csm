@@ -138,11 +138,17 @@ export function DataGridTableBody<
                       aria-hidden
                       className="pointer-events-none absolute inset-0 border border-transparent transition-colors duration-150 group-focus-within/cell:border-ring/30 group-hover/cell:border-ring/30"
                     />
-                    <div className={cn("min-w-0", showDrawerAction && "pr-8")}>
+                    <div
+                      className={cn(
+                        "min-w-0 truncate transition-[padding] duration-150",
+                        showDrawerAction &&
+                          "group-hover/cell:pr-16 group-focus-within/cell:pr-16"
+                      )}
+                    >
                       {renderCell(row, column)}
                     </div>
                     {showDrawerAction ? (
-                      <div className="pointer-events-none absolute top-1/2 right-1.5 -translate-y-1/2 opacity-0 transition-all group-focus-within/cell:pointer-events-auto group-focus-within/cell:opacity-100 group-hover/cell:pointer-events-auto group-hover/cell:opacity-100">
+                      <div className="pointer-events-none absolute top-1/2 right-1.5 z-10 -translate-y-1/2 opacity-0 transition-all group-focus-within/cell:pointer-events-auto group-focus-within/cell:opacity-100 group-hover/cell:pointer-events-auto group-hover/cell:opacity-100">
                         <Button
                           type="button"
                           variant="outline"

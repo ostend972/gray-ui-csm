@@ -115,7 +115,7 @@ export function SortableHeaderCell<ColumnId extends string>({
         className="absolute top-0 right-0 flex h-full w-3 cursor-col-resize items-center justify-center text-border transition-colors hover:text-muted-foreground"
         onPointerDown={(event) => onResize(event, column.id)}
       >
-        <IconSeparatorVertical className="size-4" />
+        <IconSeparatorVertical className="size-4 opacity-0" />
       </button>
     </TableHead>
   )
