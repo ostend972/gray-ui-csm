@@ -669,8 +669,8 @@ export function TicketDetailPage({
                     <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3 text-sm">
                       <span className="text-muted-foreground">Via</span>
                       <Badge
-                        variant="outline"
-                        className="h-6 rounded-full px-2.5"
+                        variant="secondary"
+                        className="h-8 rounded-full px-3 font-medium"
                       >
                         {channelLabel[ticket.channel]}
                       </Badge>
@@ -1002,7 +1002,7 @@ export function TicketDetailPage({
 
                   <div className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto p-4">
                     {activeRightPanelSection === "details" ? (
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                         <DetailStat
                           label="Queue status"
                           value={
