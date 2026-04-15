@@ -69,55 +69,65 @@ export function TicketSearchToolbar({
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 self-end">
-        {tableActions}
+      <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
+        {tableActions ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {tableActions}
+          </div>
+        ) : null}
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="outline" size="sm" className="h-9 rounded-xl" />
-            }
-          >
-            <IconAdjustmentsHorizontal className="size-4" />
-            {statusLabels[statusFilter]}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-40">
-            {statusItems.map((statusItem) => (
-              <DropdownMenuItem
-                key={statusItem}
-                onClick={() => onStatusFilterChange(statusItem)}
-              >
-                {statusLabels[statusItem]}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="ml-auto flex items-center gap-2 lg:ml-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 rounded-xl"
+                />
+              }
+            >
+              <IconAdjustmentsHorizontal className="size-4" />
+              {statusLabels[statusFilter]}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-40">
+              {statusItems.map((statusItem) => (
+                <DropdownMenuItem
+                  key={statusItem}
+                  onClick={() => onStatusFilterChange(statusItem)}
+                >
+                  {statusLabels[statusItem]}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-        <div className="flex items-center gap-1 rounded-xl border bg-background p-1">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className={cn(
-              "size-7 rounded-lg",
-              layoutMode === "board" && "bg-muted/70"
-            )}
-            aria-label="Board view"
-            onClick={() => onLayoutModeChange("board")}
-          >
-            <IconLayoutKanban className="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className={cn(
-              "size-7 rounded-lg",
-              layoutMode === "table" && "bg-muted/70"
-            )}
-            aria-label="Table view"
-            onClick={() => onLayoutModeChange("table")}
-          >
-            <IconTable className="size-4" />
-          </Button>
+          <div className="flex items-center gap-1 rounded-xl border bg-background p-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className={cn(
+                "size-7 rounded-lg",
+                layoutMode === "board" && "bg-muted/70"
+              )}
+              aria-label="Board view"
+              onClick={() => onLayoutModeChange("board")}
+            >
+              <IconLayoutKanban className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className={cn(
+                "size-7 rounded-lg",
+                layoutMode === "table" && "bg-muted/70"
+              )}
+              aria-label="Table view"
+              onClick={() => onLayoutModeChange("table")}
+            >
+              <IconTable className="size-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </section>

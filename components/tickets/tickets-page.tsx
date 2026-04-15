@@ -52,6 +52,7 @@ import type {
   TicketTrend,
   TicketViewKey,
 } from "@/lib/tickets/types"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 const ALLOWED_VIEWS: TicketViewKey[] = [
   "all",
@@ -244,6 +245,7 @@ export function TicketsPage({
     searchParams.get("layout") ?? initialLayout
   )
   const activeTicketId = searchParams.get("ticket")
+  const isMobile = useIsMobile()
 
   const [ticketItems, setTicketItems] = useState(initialTickets)
   const [isStatsExpanded, setIsStatsExpanded] = useState(true)
@@ -530,9 +532,7 @@ export function TicketsPage({
     replaceSearchParams(nextSearchParams)
   }
 
-  const handleCreateTicket = (
-    event?: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleCreateTicket = (event?: React.MouseEvent<HTMLButtonElement>) => {
     if (event) {
       const rect = event.currentTarget.getBoundingClientRect()
       setDrawerOrigin({
@@ -683,11 +683,11 @@ export function TicketsPage({
   return (
     <div className="space-y-4">
       <section className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl leading-tight font-semibold tracking-tight text-foreground">
+        <h1 className="text-2xl leading-tight font-semibold tracking-tight text-foreground sm:text-3xl">
           Tickets
         </h1>
 
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
           <Button variant="outline" size="sm" className="h-9 rounded-xl">
             <IconDownload className="size-4" />
             Export
@@ -898,6 +898,7 @@ export function TicketsPage({
         <TicketTable
           tickets={filteredTickets}
           sortPreset={sortPreset}
+          compactColumns={isMobile}
           onOpenTicket={handleOpenTicket}
           onTicketsChange={handleVisibleTicketsChange}
           onToolbarPropsChange={setTableToolbarProps}

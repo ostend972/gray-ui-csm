@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { currentUser } from "@/lib/current-user"
+import { useIsMobile } from "@/hooks/use-mobile"
 import type {
   Ticket,
   TicketCategoryKey,
@@ -51,6 +52,7 @@ import { cn } from "@/lib/utils"
 type TicketTableProps = {
   tickets: Ticket[]
   sortPreset: TicketSortPreset
+  compactColumns?: boolean
   onOpenTicket?: (ticketId: string, origin?: TicketDrawerOrigin) => void
   onTicketsChange?: (tickets: Ticket[]) => void
   onToolbarPropsChange?: (
@@ -225,6 +227,13 @@ const ticketColumns: DataGridColumn<TicketColumnId>[] = [
     defaultWidth: 132,
     minWidth: 120,
   },
+]
+
+const mobileColumnIds: TicketColumnId[] = [
+  "ticketNumber",
+  "subject",
+  "queueStatus",
+  "priority",
 ]
 
 function getTicketInitials(ticket: Ticket) {
@@ -419,14 +428,58 @@ function renderStaticTicketCell(ticket: Ticket, columnId: TicketColumnId) {
 export function TicketTable({
   tickets,
   sortPreset,
+  compactColumns = false,
   onOpenTicket,
   onTicketsChange,
   onToolbarPropsChange,
 }: TicketTableProps) {
+  const isMobile = useIsMobile()
+  const useCompactColumns = compactColumns || isMobile
   const sortedTickets = useMemo(
     () => sortTickets(tickets, sortPreset),
     [sortPreset, tickets]
   )
+  const visibleColumns = useMemo(() => {
+    if (!useCompactColumns) return ticketColumns
+
+    return ticketColumns
+      .filter((column) => mobileColumnIds.includes(column.id))
+      .map((column) => {
+        if (column.id === "ticketNumber") {
+          return {
+            ...column,
+            defaultWidth: 84,
+            minWidth: 76,
+          }
+        }
+
+        if (column.id === "subject") {
+          return {
+            ...column,
+            defaultWidth: 220,
+            minWidth: 180,
+          }
+        }
+
+        if (column.id === "queueStatus") {
+          return {
+            ...column,
+            defaultWidth: 110,
+            minWidth: 100,
+          }
+        }
+
+        if (column.id === "priority") {
+          return {
+            ...column,
+            defaultWidth: 104,
+            minWidth: 96,
+          }
+        }
+
+        return column
+      })
+  }, [useCompactColumns])
 
   const assigneeOptions = useMemo(() => {
     const optionsMap = new Map<string, AssigneeOption>()
@@ -473,7 +526,7 @@ export function TicketTable({
     <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/5 dark:ring-foreground/10">
       <DataGrid<Ticket, TicketColumnId>
         rows={sortedTickets}
-        columns={ticketColumns}
+        columns={visibleColumns}
         getRowLabel={(ticket) => `${ticket.ticketNumber} ${ticket.subject}`}
         isEditableColumn={(columnId) => columnId === "subject"}
         getCellEditValue={(ticket, columnId) =>

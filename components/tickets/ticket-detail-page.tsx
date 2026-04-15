@@ -58,6 +58,7 @@ import type {
   TicketTimelineItem,
   TicketTimelineMessage,
 } from "@/lib/tickets/detail-data"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 
 type TicketDetailPageProps = {
@@ -251,11 +252,7 @@ function TimelineMessageCard({ item }: { item: TicketTimelineMessage }) {
             </Badge>
           ) : null}
         </div>
-        <div
-          className={cn(
-            "mt-2 text-sm leading-6 text-foreground"
-          )}
-        >
+        <div className={cn("mt-2 text-sm leading-6 text-foreground")}>
           {item.body}
         </div>
       </div>
@@ -348,6 +345,7 @@ export function TicketDetailPage({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const searchTab = searchParams.get("tab")
+  const isMobile = useIsMobile()
 
   const [queueStatus, setQueueStatus] = useState<TicketQueueStatus>(
     ticket.queueStatus
@@ -357,13 +355,15 @@ export function TicketDetailPage({
   const [notes, setNotes] = useState(detail.notes)
   const [draftMessage, setDraftMessage] = useState("")
   const [noteDraft, setNoteDraft] = useState("")
-  const [isRightPanelOpen, setIsRightPanelOpen] = useState(true)
+  const [isDesktopRightPanelOpen, setIsDesktopRightPanelOpen] = useState(true)
   const [activeRightPanelSection, setActiveRightPanelSection] =
     useState<RightPanelSection>("details")
   const [replyFrom, setReplyFrom] = useState(
     replyFromAccounts[0]?.address ?? ""
   )
   const [templateQuery, setTemplateQuery] = useState("")
+
+  const isRightPanelOpen = !isMobile && isDesktopRightPanelOpen
 
   const selectedReplyAccount =
     replyFromAccounts.find((account) => account.address === replyFrom) ??
@@ -469,7 +469,7 @@ export function TicketDetailPage({
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
-      <header className="flex shrink-0 items-center justify-between gap-3">
+      <header className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Button
           type="button"
           variant="ghost"
@@ -480,7 +480,7 @@ export function TicketDetailPage({
           <IconArrowLeft className="size-4" />
           Back to Tickets
         </Button>
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -508,10 +508,10 @@ export function TicketDetailPage({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="inline-flex overflow-hidden rounded-2xl border border-transparent">
+          <div className="inline-flex w-full overflow-hidden rounded-2xl border border-transparent sm:w-auto">
             <Button
               type="button"
-              className="rounded-r-none"
+              className="flex-1 rounded-r-none sm:flex-none"
               onClick={() => handleSubmitReply("closed")}
             >
               Submit as Closed
@@ -547,7 +547,7 @@ export function TicketDetailPage({
       </header>
 
       <section className="shrink-0">
-        <div className="space-y-3 pl-3 pt-5">
+        <div className="space-y-3 px-1 pt-1 sm:pt-5 sm:pl-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
               {ticketNumberLabel}
@@ -585,14 +585,14 @@ export function TicketDetailPage({
                 {channelLabel[ticket.channel]}
               </Badge>
             </div>
-            <Separator orientation="vertical" className="h-4" />
+            <Separator orientation="vertical" className="hidden h-4 sm:block" />
             <div className="inline-flex items-center gap-2">
               <span>Type</span>
               <span className="font-medium text-foreground">
                 {getTicketTypeLabel(ticket)}
               </span>
             </div>
-            <Separator orientation="vertical" className="h-4" />
+            <Separator orientation="vertical" className="hidden h-4 sm:block" />
             <div className="inline-flex items-center gap-2">
               <span className="inline-flex items-center gap-1">
                 <TicketPriorityIndicator priority={ticket.priority} />
@@ -602,7 +602,7 @@ export function TicketDetailPage({
                 {priorityLabel[ticket.priority]}
               </span>
             </div>
-            <Separator orientation="vertical" className="h-4" />
+            <Separator orientation="vertical" className="hidden h-4 sm:block" />
             <div className="inline-flex items-center gap-2">
               <span>Account</span>
               <span className="font-medium text-foreground">
@@ -621,7 +621,7 @@ export function TicketDetailPage({
             : "xl:grid-cols-[minmax(0,1fr)_3.5rem]"
         )}
       >
-        <section className="min-h-0 overflow-hidden pt-10">
+        <section className="min-h-0 overflow-hidden pt-4 sm:pt-8 lg:pt-10">
           <Tabs
             value={activeTab}
             onValueChange={(value) => updateTab(value as TicketDetailTab)}
@@ -947,7 +947,7 @@ export function TicketDetailPage({
           </Tabs>
         </section>
 
-        <aside className="min-h-0">
+        <aside className="hidden min-h-0 xl:block">
           <div className="flex h-full min-h-0 overflow-hidden">
             <div className="flex w-14 shrink-0 flex-col items-center gap-2 p-2">
               <Button
@@ -955,9 +955,11 @@ export function TicketDetailPage({
                 variant="ghost"
                 size="icon-sm"
                 className="size-9 rounded-xl"
-                onClick={() => setIsRightPanelOpen((isOpen) => !isOpen)}
+                onClick={() => setIsDesktopRightPanelOpen((isOpen) => !isOpen)}
                 aria-label={
-                  isRightPanelOpen ? "Collapse right panel" : "Expand right panel"
+                  isRightPanelOpen
+                    ? "Collapse right panel"
+                    : "Expand right panel"
                 }
               >
                 {isRightPanelOpen ? (
@@ -982,7 +984,7 @@ export function TicketDetailPage({
                     aria-pressed={isActive}
                     onClick={() => {
                       setActiveRightPanelSection(section.value)
-                      setIsRightPanelOpen(true)
+                      setIsDesktopRightPanelOpen(true)
                     }}
                   >
                     <SectionIcon className="size-4" />
@@ -1002,7 +1004,7 @@ export function TicketDetailPage({
 
                   <div className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto p-4">
                     {activeRightPanelSection === "details" ? (
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                      <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                         <DetailStat
                           label="Queue status"
                           value={
@@ -1027,7 +1029,9 @@ export function TicketDetailPage({
                           label="Priority"
                           value={
                             <span className="inline-flex items-center gap-2">
-                              <TicketPriorityIndicator priority={ticket.priority} />
+                              <TicketPriorityIndicator
+                                priority={ticket.priority}
+                              />
                               {priorityLabel[ticket.priority]}
                             </span>
                           }
@@ -1094,7 +1098,8 @@ export function TicketDetailPage({
                               Support team
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              Reply from {selectedReplyAccount?.label ?? "Support"} and
+                              Reply from{" "}
+                              {selectedReplyAccount?.label ?? "Support"} and
                               keep the thread in sync.
                             </div>
                           </div>

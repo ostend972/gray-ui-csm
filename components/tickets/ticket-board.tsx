@@ -124,7 +124,8 @@ function applyTicketMove(
   const sourceQueueStatus = movingTicket.queueStatus
   const sourceColumnTickets = sortTicketsForBoard(
     sourceTickets.filter(
-      (ticket) => ticket.queueStatus === sourceQueueStatus && ticket.id !== ticketId
+      (ticket) =>
+        ticket.queueStatus === sourceQueueStatus && ticket.id !== ticketId
     )
   )
   const targetColumnTickets = sortTicketsForBoard(
@@ -137,7 +138,9 @@ function applyTicketMove(
       ? [...sourceColumnTickets]
       : [...targetColumnTickets]
   const insertIndex = insertBeforeTicketId
-    ? nextTargetColumnTickets.findIndex((ticket) => ticket.id === insertBeforeTicketId)
+    ? nextTargetColumnTickets.findIndex(
+        (ticket) => ticket.id === insertBeforeTicketId
+      )
     : nextTargetColumnTickets.length
   const nextMovingTicket = {
     ...movingTicket,
@@ -151,8 +154,13 @@ function applyTicketMove(
   )
 
   const nextSourceColumnTickets =
-    sourceQueueStatus === queueStatus ? nextTargetColumnTickets : sourceColumnTickets
-  const orderUpdates = new Map<string, Pick<Ticket, "queueStatus" | "boardOrder">>()
+    sourceQueueStatus === queueStatus
+      ? nextTargetColumnTickets
+      : sourceColumnTickets
+  const orderUpdates = new Map<
+    string,
+    Pick<Ticket, "queueStatus" | "boardOrder">
+  >()
 
   nextSourceColumnTickets.forEach((ticket, index) => {
     orderUpdates.set(ticket.id, {
@@ -200,12 +208,16 @@ function getDragPlacement(
     }
   }
 
-  const overTicket = sourceTickets.find((ticket) => ticket.id === overTarget.ticketId)
+  const overTicket = sourceTickets.find(
+    (ticket) => ticket.id === overTarget.ticketId
+  )
   if (!overTicket) return null
 
   const targetColumnTickets = sortTicketsForBoard(
     sourceTickets.filter(
-      (ticket) => ticket.queueStatus === overTicket.queueStatus && ticket.id !== activeTicketId
+      (ticket) =>
+        ticket.queueStatus === overTicket.queueStatus &&
+        ticket.id !== activeTicketId
     )
   )
   const overIndex = targetColumnTickets.findIndex(
@@ -213,10 +225,15 @@ function getDragPlacement(
   )
 
   if (overTicket.id === activeTicketId) {
-    const sourceTicket = sourceTickets.find((ticket) => ticket.id === activeTicketId)
+    const sourceTicket = sourceTickets.find(
+      (ticket) => ticket.id === activeTicketId
+    )
     if (!sourceTicket) return null
 
-    const indicatorIndex = Math.min(sourceTicket.boardOrder, targetColumnTickets.length)
+    const indicatorIndex = Math.min(
+      sourceTicket.boardOrder,
+      targetColumnTickets.length
+    )
 
     return {
       queueStatus: sourceTicket.queueStatus,
@@ -224,12 +241,18 @@ function getDragPlacement(
     }
   }
 
-  const activeCenter = activeRect ? activeRect.top + activeRect.height / 2 : null
+  const activeCenter = activeRect
+    ? activeRect.top + activeRect.height / 2
+    : null
   const overCenter = overRect ? overRect.top + overRect.height / 2 : null
   const shouldInsertAfter =
-    activeCenter !== null && overCenter !== null ? activeCenter > overCenter : false
+    activeCenter !== null && overCenter !== null
+      ? activeCenter > overCenter
+      : false
   const indicatorIndex =
-    overIndex === -1 ? targetColumnTickets.length : overIndex + (shouldInsertAfter ? 1 : 0)
+    overIndex === -1
+      ? targetColumnTickets.length
+      : overIndex + (shouldInsertAfter ? 1 : 0)
 
   return {
     queueStatus: overTicket.queueStatus,
@@ -251,16 +274,22 @@ function getDragPreview(
     return {
       queueStatus: overTarget.queueStatus,
       index: sortTicketsForBoard(
-        sourceTickets.filter((ticket) => ticket.queueStatus === overTarget.queueStatus)
+        sourceTickets.filter(
+          (ticket) => ticket.queueStatus === overTarget.queueStatus
+        )
       ).length,
     }
   }
 
-  const overTicket = sourceTickets.find((ticket) => ticket.id === overTarget.ticketId)
+  const overTicket = sourceTickets.find(
+    (ticket) => ticket.id === overTarget.ticketId
+  )
   if (!overTicket) return null
 
   const targetColumnTickets = sortTicketsForBoard(
-    sourceTickets.filter((ticket) => ticket.queueStatus === overTicket.queueStatus)
+    sourceTickets.filter(
+      (ticket) => ticket.queueStatus === overTicket.queueStatus
+    )
   )
   const overIndex = targetColumnTickets.findIndex(
     (ticket) => ticket.id === overTarget.ticketId
@@ -280,10 +309,14 @@ function getDragPreview(
     }
   }
 
-  const activeCenter = activeRect ? activeRect.top + activeRect.height / 2 : null
+  const activeCenter = activeRect
+    ? activeRect.top + activeRect.height / 2
+    : null
   const overCenter = overRect ? overRect.top + overRect.height / 2 : null
   const offsetFromCenter =
-    activeCenter !== null && overCenter !== null ? activeCenter - overCenter : null
+    activeCenter !== null && overCenter !== null
+      ? activeCenter - overCenter
+      : null
   const deadZone =
     overRect !== null ? Math.max(6, Math.min(14, overRect.height * 0.12)) : 10
 
@@ -291,7 +324,8 @@ function getDragPreview(
     offsetFromCenter !== null &&
     Math.abs(offsetFromCenter) <= deadZone &&
     previousPreview?.queueStatus === overTicket.queueStatus &&
-    (previousPreview.index === overIndex || previousPreview.index === overIndex + 1)
+    (previousPreview.index === overIndex ||
+      previousPreview.index === overIndex + 1)
   ) {
     return previousPreview
   }
@@ -391,8 +425,9 @@ export function TicketBoard({
   const [isClientReady, setIsClientReady] = useState(false)
   const [draggingTicketId, setDraggingTicketId] = useState<string | null>(null)
   const [dragPreview, setDragPreview] = useState<DragPreview | null>(null)
-  const [recentlyMovedTicketId, setRecentlyMovedTicketId] =
-    useState<string | null>(null)
+  const [recentlyMovedTicketId, setRecentlyMovedTicketId] = useState<
+    string | null
+  >(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -440,7 +475,7 @@ export function TicketBoard({
   )
 
   const activeTicket = draggingTicketId
-    ? tickets.find((ticket) => ticket.id === draggingTicketId) ?? null
+    ? (tickets.find((ticket) => ticket.id === draggingTicketId) ?? null)
     : null
 
   const handleOpenTicket = (ticketId: string, origin?: TicketDrawerOrigin) => {
@@ -451,7 +486,7 @@ export function TicketBoard({
   if (!isClientReady) {
     return (
       <div className="pb-2">
-        <div className="mx-auto grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mx-auto grid w-full snap-x snap-mandatory auto-cols-[minmax(17.5rem,88vw)] grid-flow-col gap-4 overflow-x-auto pr-1 pb-2 sm:auto-cols-auto sm:grid-flow-row sm:grid-cols-2 sm:overflow-visible sm:pr-0 sm:pb-0 xl:grid-cols-4">
           {ticketsByColumn.map((column) => (
             <TicketColumn
               key={column.key}
@@ -509,22 +544,21 @@ export function TicketBoard({
 
     lastOverTargetRef.current = overTarget
 
-    setDragPreview((currentPreview) =>
-      {
-        const nextPreview = getDragPreview(
-          tickets,
-          activeTarget.ticketId,
-          overTarget,
-          event.active.rect.current.translated ?? event.active.rect.current.initial,
-          overRect,
-          currentPreview
-        )
+    setDragPreview((currentPreview) => {
+      const nextPreview = getDragPreview(
+        tickets,
+        activeTarget.ticketId,
+        overTarget,
+        event.active.rect.current.translated ??
+          event.active.rect.current.initial,
+        overRect,
+        currentPreview
+      )
 
-        return areDragPreviewsEqual(currentPreview, nextPreview)
-          ? currentPreview
-          : nextPreview
-      }
-    )
+      return areDragPreviewsEqual(currentPreview, nextPreview)
+        ? currentPreview
+        : nextPreview
+    })
   }
 
   const collisionDetectionStrategy: CollisionDetection = (args) => {
@@ -592,7 +626,9 @@ export function TicketBoard({
     const finalTicket = finalTickets.find(
       (ticket) => ticket.id === activeTarget.ticketId
     )
-    const originalTicket = tickets.find((ticket) => ticket.id === activeTarget.ticketId)
+    const originalTicket = tickets.find(
+      (ticket) => ticket.id === activeTarget.ticketId
+    )
 
     if (!finalTicket || !originalTicket) {
       resetDragState()
@@ -626,7 +662,7 @@ export function TicketBoard({
         onDragEnd={handleDragEnd}
         onDragCancel={resetDragState}
       >
-        <div className="mx-auto grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mx-auto grid w-full snap-x snap-mandatory auto-cols-[minmax(17.5rem,88vw)] grid-flow-col gap-4 overflow-x-auto pr-1 pb-2 sm:auto-cols-auto sm:grid-flow-row sm:grid-cols-2 sm:overflow-visible sm:pr-0 sm:pb-0 xl:grid-cols-4">
           {ticketsByColumn.map((column) => (
             <SortableContext
               key={column.key}

@@ -123,8 +123,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           className={cn(
             "mx-auto flex w-full flex-1 flex-col",
             shellDisplayMode === "ticket-detail"
-              ? "h-svh min-h-0 max-w-none gap-4 overflow-hidden px-6 py-4 lg:px-8"
-              : "max-w-500 gap-4 p-8"
+              ? "h-svh min-h-0 max-w-none gap-3 overflow-hidden px-3 py-3 sm:gap-4 sm:px-4 sm:py-4 lg:px-8"
+              : "max-w-500 gap-4 p-4 sm:p-6 lg:p-8"
           )}
         >
           {children}

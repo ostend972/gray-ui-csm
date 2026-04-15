@@ -81,7 +81,7 @@ export function TicketStats({ stats }: TicketStatsProps) {
               {stat.label}
             </div>
           </CardHeader>
-          <CardContent className="space-y-3 px-5 py-4 rounded-2xl border border-border bg-card">
+          <CardContent className="space-y-3 rounded-[calc(var(--radius-2xl)-6px)] border border-border bg-card px-5 py-4">
             <p className="text-3xl leading-8 font-medium text-foreground">
               {stat.value}
             </p>

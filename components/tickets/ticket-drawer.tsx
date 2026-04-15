@@ -319,7 +319,7 @@ export function TicketDrawer({ open, ticket, ...props }: TicketDrawerProps) {
         showCloseButton={false}
         style={getDrawerMotionStyle(panelState?.origin)}
         className={cn(
-          "overflow-hidden p-0 transition-[width,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width,transform] motion-reduce:transition-none data-starting-style:translate-x-[var(--drawer-slide-enter-x,3rem)] data-ending-style:translate-x-[var(--drawer-slide-exit-x,2.5rem)] data-starting-style:translate-y-[var(--drawer-origin-enter-y,0px)] data-ending-style:translate-y-[var(--drawer-origin-exit-y,0px)] data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 sm:shadow-2xl sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:w-[min(calc(100vw-1.5rem),clamp(34rem,36vw,46rem))] sm:data-[side=right]:max-w-none sm:data-[side=right]:rounded-[22px] sm:data-[side=right]:border",
+          "overflow-hidden p-0 transition-[width,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width,transform] data-ending-style:translate-x-[var(--drawer-slide-exit-x,2.5rem)] data-ending-style:translate-y-[var(--drawer-origin-exit-y,0px)] data-starting-style:translate-x-[var(--drawer-slide-enter-x,3rem)] data-starting-style:translate-y-[var(--drawer-origin-enter-y,0px)] data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 motion-reduce:transition-none sm:shadow-2xl sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:w-[min(calc(100vw-1.5rem),clamp(34rem,36vw,46rem))] sm:data-[side=right]:max-w-none sm:data-[side=right]:rounded-[22px] sm:data-[side=right]:border",
           renderedIsExpanded &&
             "lg:data-[side=right]:w-[min(calc(100vw-2rem),clamp(60rem,72vw,78rem))]"
         )}
@@ -529,7 +529,7 @@ function TicketDrawerPanel({
     <div className="flex h-full flex-col overflow-hidden bg-background transition-[background-color] duration-300 motion-reduce:transition-none">
       <header
         className={cn(
-          "sticky top-0 z-20 border-b border-border/70 bg-background/95 px-5 py-4 backdrop-blur-xl transition-[background-color,border-color,opacity,transform] duration-300 motion-reduce:transition-none group-data-[starting-style]/drawer-sheet:translate-x-4 group-data-[starting-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:delay-75 group-data-[ending-style]/drawer-sheet:translate-x-2 group-data-[ending-style]/drawer-sheet:opacity-0"
+          "sticky top-0 z-20 border-b border-border/70 bg-background/95 px-5 py-4 backdrop-blur-xl transition-[background-color,border-color,opacity,transform] duration-300 group-data-[ending-style]/drawer-sheet:translate-x-2 group-data-[ending-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:translate-x-4 group-data-[starting-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:delay-75 motion-reduce:transition-none"
         )}
       >
         <div className="flex items-center justify-between gap-4">
@@ -632,7 +632,7 @@ function TicketDrawerPanel({
 
       <div
         className={cn(
-          "min-h-0 flex-1 overflow-hidden transition-[opacity,transform] duration-300 motion-reduce:transition-none group-data-[starting-style]/drawer-sheet:translate-x-3 group-data-[starting-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:delay-100 group-data-[ending-style]/drawer-sheet:translate-x-2 group-data-[ending-style]/drawer-sheet:opacity-0"
+          "min-h-0 flex-1 overflow-hidden transition-[opacity,transform] duration-300 group-data-[ending-style]/drawer-sheet:translate-x-2 group-data-[ending-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:translate-x-3 group-data-[starting-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:delay-100 motion-reduce:transition-none"
         )}
       >
         <div
@@ -677,7 +677,10 @@ function TicketDrawerPanel({
                       {selectedReplyAccount.label}
                       <IconChevronDown className="size-4 text-muted-foreground" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-72 p-2">
+                    <DropdownMenuContent
+                      align="start"
+                      className="w-[min(19rem,calc(100vw-2.5rem))] p-2"
+                    >
                       <DropdownMenuGroup>
                         <DropdownMenuLabel className="px-2 pb-3 text-base font-semibold text-foreground">
                           Select account
@@ -837,7 +840,7 @@ function TicketDrawerPanel({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="start"
-                        className="w-[19rem] rounded-2xl p-0"
+                        className="w-[min(19rem,calc(100vw-2.5rem))] rounded-2xl p-0"
                       >
                         <div className="border-b border-border/70 px-4 py-3">
                           <div className="text-sm font-semibold text-foreground">
@@ -1249,10 +1252,10 @@ function TicketDrawerPanel({
 
       <footer
         className={cn(
-          "sticky bottom-0 z-20 border-t border-border/70 bg-background/95 px-5 py-4 backdrop-blur-xl transition-[background-color,border-color,opacity,transform] duration-300 motion-reduce:transition-none group-data-[starting-style]/drawer-sheet:translate-x-4 group-data-[starting-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:delay-150 group-data-[ending-style]/drawer-sheet:translate-x-2 group-data-[ending-style]/drawer-sheet:opacity-0"
+          "sticky bottom-0 z-20 border-t border-border/70 bg-background/95 px-5 py-4 backdrop-blur-xl transition-[background-color,border-color,opacity,transform] duration-300 group-data-[ending-style]/drawer-sheet:translate-x-2 group-data-[ending-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:translate-x-4 group-data-[starting-style]/drawer-sheet:opacity-0 group-data-[starting-style]/drawer-sheet:delay-150 motion-reduce:transition-none"
         )}
       >
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
           <Button
             type="button"
             variant="ghost"
@@ -1273,7 +1276,7 @@ function TicketDrawerPanel({
           ) : (
             <div
               className={cn(
-                "btn-primary-chrome inline-flex items-center overflow-hidden rounded-xl bg-primary text-primary-foreground",
+                "btn-primary-chrome inline-flex w-full items-center overflow-hidden rounded-xl bg-primary text-primary-foreground sm:w-auto",
                 primaryActionDisabled &&
                   "pointer-events-none opacity-60 saturate-75"
               )}
@@ -1281,7 +1284,7 @@ function TicketDrawerPanel({
               <Button
                 type="button"
                 variant="ghost"
-                className="rounded-none border-none bg-transparent px-4 text-inherit shadow-none hover:!bg-white/22 hover:text-inherit disabled:opacity-100 aria-expanded:!bg-white/22"
+                className="flex-1 rounded-none border-none bg-transparent px-4 text-inherit shadow-none hover:!bg-white/22 hover:text-inherit disabled:opacity-100 aria-expanded:!bg-white/22 sm:flex-none"
                 disabled={primaryActionDisabled}
                 onClick={() => onSubmitMessage(ticket.id)}
               >

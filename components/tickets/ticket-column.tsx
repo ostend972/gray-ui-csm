@@ -83,7 +83,7 @@ export function TicketColumn({
     <section
       ref={setNodeRef}
       className={cn(
-        "flex min-w-0 flex-1 flex-col gap-2 rounded-2xl border border-transparent bg-muted/40 p-2 transition-[background-color,border-color,box-shadow] dark:border dark:border-border/50 dark:bg-muted/25",
+        "flex min-w-0 flex-1 snap-start flex-col gap-2 rounded-2xl border border-transparent bg-muted/40 p-2 transition-[background-color,border-color,box-shadow] dark:border dark:border-border/50 dark:bg-muted/25",
         isOver ? "border-primary/50 bg-primary/5 shadow-sm" : ""
       )}
       data-column-key={columnKey}
@@ -131,7 +131,7 @@ export function TicketColumn({
           <div
             key={ticket.id}
             className={cn(
-              "will-change-transform transition-transform duration-100 ease-out",
+              "transition-transform duration-100 ease-out will-change-transform",
               showPreview && previewIndex !== undefined
                 ? index >= previewIndex
                   ? "translate-y-2"
