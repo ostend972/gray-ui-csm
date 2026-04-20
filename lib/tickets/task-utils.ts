@@ -37,6 +37,14 @@ export const ticketTaskDueLabel: Record<TicketTaskDuePreset, string> = {
   "this-week": "This week",
 }
 
+export const ticketTaskStatusTextClassName: Record<TicketTaskStatus, string> = {
+  todo: "text-muted-foreground",
+  "in-progress": "text-amber-600",
+  done: "text-emerald-600",
+}
+
+export const DEFAULT_TICKET_TASK_TITLE = "Untitled task"
+
 const ticketTaskStoragePrefix = "gray-ui-csm:ticket-tasks"
 
 export function getTicketTaskStorageKey(ticketId: string) {
@@ -49,6 +57,24 @@ export function createTicketTaskId(ticketId: string) {
   }
 
   return `${ticketId}-task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+export function createTicketTask({
+  id,
+  title,
+  assignee,
+}: {
+  id: string
+  title: string
+  assignee?: TicketPerson
+}): TicketTask {
+  return {
+    id,
+    title,
+    status: "todo",
+    due: "none",
+    assignee,
+  }
 }
 
 export function isTicketTaskStatus(value: unknown): value is TicketTaskStatus {

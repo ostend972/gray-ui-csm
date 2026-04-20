@@ -45,11 +45,13 @@ import type {
   TicketTaskStatus,
 } from "@/lib/tickets/detail-data"
 import {
+  DEFAULT_TICKET_TASK_TITLE,
   createTicketTaskId,
   ticketTaskDueLabel,
   ticketTaskDueOptions,
   ticketTaskStatusLabel,
   ticketTaskStatusOptions,
+  ticketTaskStatusTextClassName,
 } from "@/lib/tickets/task-utils"
 import type { TicketPerson } from "@/lib/tickets/types"
 import { cn } from "@/lib/utils"
@@ -265,7 +267,7 @@ export function TicketTaskInlineList({
               className="h-9 rounded-xl px-3.5"
               onClick={() => {
                 const nextTaskId = createTicketTaskId(ticketId)
-                const nextTaskTitle = "Untitled task"
+                const nextTaskTitle = DEFAULT_TICKET_TASK_TITLE
 
                 onCreateTask({
                   id: nextTaskId,
@@ -466,7 +468,7 @@ function TicketTaskInlineRow({
                   size="sm"
                   className={cn(
                     "h-8 rounded-lg px-2 text-xs font-semibold",
-                    getStatusTextClass(task.status)
+                    ticketTaskStatusTextClassName[task.status]
                   )}
                 />
               }
@@ -607,10 +609,4 @@ function TicketTaskInlineRow({
       </div>
     </div>
   )
-}
-
-function getStatusTextClass(status: TicketTaskStatus) {
-  if (status === "done") return "text-emerald-600"
-  if (status === "in-progress") return "text-amber-600"
-  return "text-muted-foreground"
 }

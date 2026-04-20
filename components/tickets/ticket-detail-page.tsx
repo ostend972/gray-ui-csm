@@ -45,6 +45,7 @@ import type {
   TicketTimelineItem,
 } from "@/lib/tickets/detail-data"
 import {
+  createTicketTask,
   createTicketTaskId,
   getTicketTaskStorageKey,
   parsePersistedTicketTasks,
@@ -115,10 +116,10 @@ export function TicketDetailPage({
       email: currentUser.email,
       avatarUrl: currentUser.avatar,
     })
-    detail.notes.forEach((note) => pushOption(note.author))
+    notes.forEach((note) => pushOption(note.author))
 
     return Array.from(optionsMap.values())
-  }, [detail.customer, detail.notes, ticket.assignee, ticket.requester])
+  }, [detail.customer, notes, ticket.assignee, ticket.requester])
 
   const conversationItems = timeline.filter(
     (item) => item.kind === "message" || item.kind === "event"
@@ -258,13 +259,7 @@ export function TicketDetailPage({
 
   const handleCreateTask = ({ id, title }: CreateTicketTaskPayload) => {
     setTasks((currentTasks) => [
-      {
-        id,
-        title,
-        status: "todo",
-        due: "none",
-        assignee: ticket.assignee,
-      },
+      createTicketTask({ id, title, assignee: ticket.assignee }),
       ...currentTasks,
     ])
   }
