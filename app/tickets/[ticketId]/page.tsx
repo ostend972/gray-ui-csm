@@ -39,10 +39,10 @@ export default async function Page({
 
   return (
     <TicketDetailPage
+      key={ticket.id}
       ticket={ticket}
       detail={detail}
       initialTab={normalizeTab(resolvedSearchParams.tab)}
     />
   )
 }
-

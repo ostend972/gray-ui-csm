@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { arrayMove } from "@dnd-kit/sortable"
 import { IconArrowLeft, IconChevronDown, IconDots } from "@tabler/icons-react"
 
 import {
@@ -34,14 +35,20 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { currentUser, replyFromAccounts } from "@/lib/current-user"
-import type { Ticket, TicketQueueStatus } from "@/lib/tickets/types"
+import type { Ticket, TicketPerson, TicketQueueStatus } from "@/lib/tickets/types"
 import type {
   TicketDetail,
   TicketDetailTab,
   TicketNote,
+  TicketTask,
   TicketTimelineEvent,
   TicketTimelineItem,
 } from "@/lib/tickets/detail-data"
+import {
+  createTicketTaskId,
+  getTicketTaskStorageKey,
+  parsePersistedTicketTasks,
+} from "@/lib/tickets/task-utils"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 
@@ -49,6 +56,11 @@ type TicketDetailPageProps = {
   ticket: Ticket
   detail: TicketDetail
   initialTab?: TicketDetailTab
+}
+
+type CreateTicketTaskPayload = {
+  id: string
+  title: string
 }
 
 export function TicketDetailPage({
@@ -61,12 +73,14 @@ export function TicketDetailPage({
   const searchParams = useSearchParams()
   const searchTab = searchParams.get("tab")
   const isMobile = useIsMobile()
+  const taskStorageKey = getTicketTaskStorageKey(ticket.id)
+  const didHydrateTasksRef = useRef(false)
 
   const [queueStatus, setQueueStatus] = useState<TicketQueueStatus>(
     ticket.queueStatus
   )
   const [timeline, setTimeline] = useState(detail.timeline)
-  const [tasks, setTasks] = useState(detail.tasks)
+  const [tasks, setTasks] = useState<TicketTask[]>(detail.tasks)
   const [notes, setNotes] = useState(detail.notes)
   const [draftMessage, setDraftMessage] = useState("")
   const [noteDraft, setNoteDraft] = useState("")
@@ -84,6 +98,28 @@ export function TicketDetailPage({
     replyFromAccounts.find((account) => account.address === replyFrom) ??
     replyFromAccounts[0]
 
+  const taskAssigneeOptions = useMemo(() => {
+    const optionsMap = new Map<string, TicketPerson>()
+
+    const pushOption = (person?: TicketPerson) => {
+      if (!person?.name) return
+      if (optionsMap.has(person.name)) return
+      optionsMap.set(person.name, person)
+    }
+
+    pushOption(ticket.assignee)
+    pushOption(ticket.requester)
+    pushOption(detail.customer)
+    pushOption({
+      name: currentUser.name,
+      email: currentUser.email,
+      avatarUrl: currentUser.avatar,
+    })
+    detail.notes.forEach((note) => pushOption(note.author))
+
+    return Array.from(optionsMap.values())
+  }, [detail.customer, detail.notes, ticket.assignee, ticket.requester])
+
   const conversationItems = timeline.filter(
     (item) => item.kind === "message" || item.kind === "event"
   )
@@ -100,6 +136,39 @@ export function TicketDetailPage({
   const activeTab = detailTabs.some((tab) => tab.value === searchTab)
     ? (searchTab as TicketDetailTab)
     : initialTab
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    didHydrateTasksRef.current = false
+
+    const persistedTasks = parsePersistedTicketTasks(
+      window.localStorage.getItem(taskStorageKey)
+    )
+    const frameId = window.requestAnimationFrame(() => {
+      if (persistedTasks) {
+        setTasks(persistedTasks)
+      } else {
+        setTasks(detail.tasks)
+      }
+
+      didHydrateTasksRef.current = true
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+    }
+  }, [detail.tasks, taskStorageKey])
+
+  useEffect(() => {
+    if (!didHydrateTasksRef.current) return
+    if (typeof window === "undefined") return
+
+    try {
+      window.localStorage.setItem(taskStorageKey, JSON.stringify(tasks))
+    } catch {
+      // Ignore persistence failures (private mode, quota, etc.).
+    }
+  }, [taskStorageKey, tasks])
 
   const updateTab = (nextTab: TicketDetailTab) => {
     const nextSearchParams = new URLSearchParams(searchParams.toString())
@@ -172,6 +241,82 @@ export function TicketDetailPage({
     setDraftMessage((currentDraft) =>
       [currentDraft.trim(), macro].filter(Boolean).join("\n\n")
     )
+  }
+
+  const handleToggleTask = (taskId: string) => {
+    setTasks((currentTasks) =>
+      currentTasks.map((currentTask) =>
+        currentTask.id === taskId
+          ? {
+              ...currentTask,
+              status: currentTask.status === "done" ? "todo" : "done",
+            }
+          : currentTask
+      )
+    )
+  }
+
+  const handleCreateTask = ({ id, title }: CreateTicketTaskPayload) => {
+    setTasks((currentTasks) => [
+      {
+        id,
+        title,
+        status: "todo",
+        due: "none",
+        assignee: ticket.assignee,
+      },
+      ...currentTasks,
+    ])
+  }
+
+  const handleUpdateTask = (
+    taskId: string,
+    patch: Partial<Pick<TicketTask, "title" | "status" | "due" | "assignee">>
+  ) => {
+    setTasks((currentTasks) =>
+      currentTasks.map((currentTask) =>
+        currentTask.id === taskId ? { ...currentTask, ...patch } : currentTask
+      )
+    )
+  }
+
+  const handleDuplicateTask = (taskId: string) => {
+    setTasks((currentTasks) => {
+      const index = currentTasks.findIndex((currentTask) => currentTask.id === taskId)
+      if (index < 0) return currentTasks
+
+      const sourceTask = currentTasks[index]
+      const duplicatedTask: TicketTask = {
+        ...sourceTask,
+        id: createTicketTaskId(ticket.id),
+        title: `${sourceTask.title} (copy)`,
+      }
+
+      const nextTasks = [...currentTasks]
+      nextTasks.splice(index + 1, 0, duplicatedTask)
+      return nextTasks
+    })
+  }
+
+  const handleDeleteTask = (taskId: string) => {
+    setTasks((currentTasks) =>
+      currentTasks.filter((currentTask) => currentTask.id !== taskId)
+    )
+  }
+
+  const handleReorderTasks = (activeTaskId: string, overTaskId: string) => {
+    setTasks((currentTasks) => {
+      const fromIndex = currentTasks.findIndex(
+        (currentTask) => currentTask.id === activeTaskId
+      )
+      const toIndex = currentTasks.findIndex(
+        (currentTask) => currentTask.id === overTaskId
+      )
+
+      if (fromIndex < 0 || toIndex < 0) return currentTasks
+
+      return arrayMove(currentTasks, fromIndex, toIndex)
+    })
   }
 
   const ticketNumberLabel = getTicketNumberLabel(ticket)
@@ -379,19 +524,15 @@ export function TicketDetailPage({
               className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=inactive]:hidden"
             >
               <TaskTabContent
+                ticketId={ticket.id}
                 tasks={tasks}
-                onToggleTask={(taskId) =>
-                  setTasks((currentTasks) =>
-                    currentTasks.map((currentTask) =>
-                      currentTask.id === taskId
-                        ? {
-                            ...currentTask,
-                            completed: !currentTask.completed,
-                          }
-                        : currentTask
-                    )
-                  )
-                }
+                assigneeOptions={taskAssigneeOptions}
+                onToggleTask={handleToggleTask}
+                onCreateTask={handleCreateTask}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+                onDuplicateTask={handleDuplicateTask}
+                onReorderTasks={handleReorderTasks}
               />
             </TabsContent>
 

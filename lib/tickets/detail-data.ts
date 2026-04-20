@@ -35,11 +35,16 @@ export type TicketTimelineItem =
   | TicketTimelineEvent
   | TicketTimelineNote
 
+export type TicketTaskStatus = "todo" | "in-progress" | "done"
+
+export type TicketTaskDuePreset = "none" | "today" | "tomorrow" | "this-week"
+
 export type TicketTask = {
   id: string
   title: string
-  detail: string
-  completed: boolean
+  status: TicketTaskStatus
+  due: TicketTaskDuePreset
+  assignee?: TicketPerson
 }
 
 export type TicketNote = {
@@ -270,23 +275,26 @@ export function buildTicketDetail(ticket: Ticket): TicketDetail {
     {
       id: `${ticket.id}-task-1`,
       title: "Confirm the outcome needed for the account review",
-      detail:
-        "Capture the exact customer-facing answer, owner, and timing needed for the next success touchpoint.",
-      completed: true,
+      status: "done",
+      due: "today",
+      assignee: agent,
     },
     {
       id: `${ticket.id}-task-2`,
       title: "Pull account context before replying",
-      detail:
-        "Review usage, ownership, recent health signals, and any linked commercial or support blockers.",
-      completed: true,
+      status: "done",
+      due: "today",
+      assignee: agent,
     },
     {
       id: `${ticket.id}-task-3`,
       title: "Send the customer-ready follow-up",
-      detail:
-        "Wrap the resolution into a concise action plan that can be reused in the CSM follow-up.",
-      completed: false,
+      status: "in-progress",
+      due: "tomorrow",
+      assignee: {
+        name: "CSM Lead",
+        email: "csm-lead@opensource-demo.dev",
+      },
     },
   ]
 

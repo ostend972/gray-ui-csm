@@ -1,8 +1,6 @@
 import {
   IconChevronsLeft,
   IconChevronsRight,
-  IconCircleCheck,
-  IconCircleDashed,
   IconChevronDown,
   IconMicrophone,
   IconMoodSmile,
@@ -23,6 +21,7 @@ import {
   type RightPanelSection,
   statusLabel,
 } from "@/components/tickets/ticket-detail-helpers"
+import { TicketTaskInlineList } from "@/components/tickets/ticket-task-inline-list"
 import { TicketPriorityIndicator } from "@/components/tickets/ticket-priority-indicator"
 import { TicketTag } from "@/components/tickets/ticket-tag"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -48,7 +47,7 @@ import type {
   TicketTimelineEvent,
   TicketTimelineMessage,
 } from "@/lib/tickets/detail-data"
-import type { Ticket, TicketQueueStatus } from "@/lib/tickets/types"
+import type { Ticket, TicketPerson, TicketQueueStatus } from "@/lib/tickets/types"
 import { cn } from "@/lib/utils"
 import { getInitials } from "./ticket-detail-helpers"
 
@@ -169,53 +168,6 @@ function NoteCard({ note }: { note: TicketNote }) {
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{note.body}</p>
       </div>
     </div>
-  )
-}
-
-function TaskRow({
-  task,
-  onToggle,
-}: {
-  task: TicketTask
-  onToggle: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={cn(
-        "flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition hover:border-primary/30 hover:bg-primary/5",
-        task.completed ? "bg-muted/40" : "bg-background"
-      )}
-    >
-      {task.completed ? (
-        <IconCircleCheck className="mt-0.5 size-5 text-emerald-600" />
-      ) : (
-        <IconCircleDashed className="mt-0.5 size-5 text-muted-foreground" />
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-3">
-          <span
-            className={cn(
-              "text-sm font-semibold",
-              task.completed ? "text-muted-foreground line-through" : "text-foreground"
-            )}
-          >
-            {task.title}
-          </span>
-          {task.completed ? (
-            <Badge variant="secondary" className="rounded-full">
-              Done
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="rounded-full">
-              Open
-            </Badge>
-          )}
-        </div>
-        <p className="mt-1 text-sm leading-6 text-muted-foreground">{task.detail}</p>
-      </div>
-    </button>
   )
 }
 
@@ -456,24 +408,41 @@ export function ConversationTabContent({
 }
 
 export function TaskTabContent({
+  ticketId,
   tasks,
+  assigneeOptions,
   onToggleTask,
+  onCreateTask,
+  onUpdateTask,
+  onDeleteTask,
+  onDuplicateTask,
+  onReorderTasks,
 }: {
+  ticketId: string
   tasks: TicketTask[]
+  assigneeOptions: TicketPerson[]
   onToggleTask: (taskId: string) => void
+  onCreateTask: (payload: { id: string; title: string }) => void
+  onUpdateTask: (
+    taskId: string,
+    patch: Partial<Pick<TicketTask, "title" | "status" | "due" | "assignee">>
+  ) => void
+  onDeleteTask: (taskId: string) => void
+  onDuplicateTask: (taskId: string) => void
+  onReorderTasks: (activeTaskId: string, overTaskId: string) => void
 }) {
   return (
-    <div className="scrollbar-hidden h-full overflow-y-auto px-6 py-6">
-      <div className="space-y-3">
-        {tasks.map((task) => (
-          <TaskRow
-            key={task.id}
-            task={task}
-            onToggle={() => onToggleTask(task.id)}
-          />
-        ))}
-      </div>
-    </div>
+    <TicketTaskInlineList
+      ticketId={ticketId}
+      tasks={tasks}
+      assigneeOptions={assigneeOptions}
+      onToggleTask={onToggleTask}
+      onCreateTask={onCreateTask}
+      onUpdateTask={onUpdateTask}
+      onDeleteTask={onDeleteTask}
+      onDuplicateTask={onDuplicateTask}
+      onReorderTasks={onReorderTasks}
+    />
   )
 }
 
