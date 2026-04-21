@@ -319,7 +319,7 @@ export function TicketDrawer({ open, ticket, ...props }: TicketDrawerProps) {
         showCloseButton={false}
         style={getDrawerMotionStyle(panelState?.origin)}
         className={cn(
-          "overflow-hidden p-0 transition-[width,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width,transform] data-ending-style:translate-x-[var(--drawer-slide-exit-x,2.5rem)] data-ending-style:translate-y-[var(--drawer-origin-exit-y,0px)] data-starting-style:translate-x-[var(--drawer-slide-enter-x,3rem)] data-starting-style:translate-y-[var(--drawer-origin-enter-y,0px)] data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 motion-reduce:transition-none sm:shadow-2xl sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:w-[min(calc(100vw-1.5rem),clamp(34rem,36vw,46rem))] sm:data-[side=right]:max-w-none sm:data-[side=right]:rounded-[22px] sm:data-[side=right]:border",
+          "overflow-hidden p-0 transition-[width,transform] duration-300 ease-[var(--motion-emphasized)] will-change-[width,transform] data-ending-style:translate-x-[var(--drawer-slide-exit-x,2.5rem)] data-ending-style:translate-y-[var(--drawer-origin-exit-y,0px)] data-starting-style:translate-x-[var(--drawer-slide-enter-x,3rem)] data-starting-style:translate-y-[var(--drawer-origin-enter-y,0px)] data-[side=right]:top-0 data-[side=right]:right-0 data-[side=right]:bottom-0 data-[side=right]:h-dvh data-[side=right]:w-screen data-[side=right]:rounded-none data-[side=right]:border-l data-[side=right]:border-border/70 motion-reduce:transition-none sm:shadow-2xl sm:data-[side=right]:top-3 sm:data-[side=right]:right-3 sm:data-[side=right]:bottom-3 sm:data-[side=right]:h-[calc(100dvh-1.5rem)] sm:data-[side=right]:w-[min(calc(100vw-1.5rem),clamp(34rem,36vw,46rem))] sm:data-[side=right]:max-w-none sm:data-[side=right]:rounded-[22px] sm:data-[side=right]:border",
           renderedIsExpanded &&
             "lg:data-[side=right]:w-[min(calc(100vw-2rem),clamp(60rem,72vw,78rem))]"
         )}
@@ -638,13 +638,13 @@ function TicketDrawerPanel({
         <div
           data-layout={isExpanded ? "split" : "stacked"}
           className={cn(
-            "grid h-full min-h-0 grid-cols-1 transition-[grid-template-columns] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+            "grid h-full min-h-0 grid-cols-1 transition-[grid-template-columns] duration-300 ease-[var(--motion-emphasized)] motion-reduce:transition-none",
             isExpanded && "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]"
           )}
         >
           <section
             className={cn(
-              "flex min-h-0 min-h-[14rem] flex-col px-5 py-5 transition-[border-color,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+              "flex min-h-0 min-h-[14rem] flex-col px-5 py-5 transition-[border-color,opacity,transform] duration-300 ease-[var(--motion-emphasized)] motion-reduce:transition-none",
               isExpanded
                 ? "order-1 border-b border-border/70 lg:border-r lg:border-b-0"
                 : "order-2 border-t border-border/70"
@@ -652,10 +652,10 @@ function TicketDrawerPanel({
           >
             <div
               className={cn(
-                "flex min-h-0 flex-1 flex-col transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                "flex min-h-0 flex-1 flex-col transition-[opacity,transform,filter] duration-300 ease-[var(--motion-emphasized)] motion-reduce:transition-none",
                 isExpanded
                   ? "lg:translate-x-0 lg:opacity-100 lg:delay-75"
-                  : "lg:translate-x-2 lg:opacity-95"
+                  : "lg:opacity-95"
               )}
             >
               <div>
@@ -727,7 +727,7 @@ function TicketDrawerPanel({
 
               <div
                 className={cn(
-                  "mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-background transition-[box-shadow,border-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                  "mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-background transition-[box-shadow,border-color,transform] duration-300 ease-[var(--motion-emphasized)] motion-reduce:transition-none",
                   isExpanded
                     ? "lg:translate-y-0 lg:shadow-[0_18px_40px_-28px_rgba(15,23,42,0.28)]"
                     : "lg:translate-y-1"
@@ -742,7 +742,7 @@ function TicketDrawerPanel({
                   className="min-h-0 w-full flex-1 resize-none bg-transparent px-4 py-3 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/70"
                 />
 
-                <div className="border-t border-border/70 px-3 py-3">
+                <div className="border-t border-border/70 px-4 py-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
                       type="button"
@@ -889,16 +889,16 @@ function TicketDrawerPanel({
 
           <section
             className={cn(
-              "scrollbar-hidden relative min-h-0 overflow-y-auto px-5 py-5 transition-[border-color,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+              "scrollbar-hidden relative min-h-0 overflow-y-auto px-5 py-5 transition-[border-color,opacity,transform] duration-300 ease-[var(--motion-emphasized)] motion-reduce:transition-none",
               isExpanded ? "order-2" : "order-1"
             )}
           >
             <div
               className={cn(
-                "space-y-5 transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                "space-y-5 transition-[opacity,transform,filter] duration-300 ease-[var(--motion-emphasized)] motion-reduce:transition-none",
                 isExpanded
                   ? "lg:translate-x-0 lg:opacity-100 lg:delay-50"
-                  : "lg:-translate-x-2 lg:opacity-100"
+                  : "lg:opacity-100"
               )}
             >
               <MetadataField label="Ticket Name">
