@@ -10,6 +10,9 @@ import {
 } from "react"
 
 import {
+  CustomerCardGrid,
+} from "@/components/customers/customer-card-grid"
+import {
   CustomersTable,
   type CustomerColumnId,
 } from "@/components/customers/customer-table"
@@ -30,6 +33,7 @@ import { customerHealthLabels, customerLifecycleLabels } from "@/lib/customers/t
 import type {
   Customer,
   CustomerHealth,
+  CustomerLayoutMode,
   CustomerLifecycle,
   CustomerViewKey,
 } from "@/lib/customers/types"
@@ -37,6 +41,7 @@ import type {
 type CustomerHealthFilter = "all" | CustomerHealth
 type CustomersPageProps = {
   initialView?: string | null
+  initialLayout?: string | null
 }
 
 const customerViewKeys: CustomerViewKey[] = [
@@ -46,6 +51,7 @@ const customerViewKeys: CustomerViewKey[] = [
   "renewal",
   "high-touch",
 ]
+const customerLayoutModes: CustomerLayoutMode[] = ["table", "card"]
 
 const healthPriority: Record<CustomerHealth, number> = {
   at_risk: 3,
@@ -124,12 +130,20 @@ function exportCustomersToCsv(rows: Customer[]) {
   URL.revokeObjectURL(url)
 }
 
-export function CustomersPage({ initialView = "all" }: CustomersPageProps) {
+export function CustomersPage({
+  initialView = "all",
+  initialLayout = "table",
+}: CustomersPageProps) {
   const activeView: CustomerViewKey = customerViewKeys.includes(
     initialView as CustomerViewKey
   )
     ? (initialView as CustomerViewKey)
     : "all"
+  const [layoutMode, setLayoutMode] = useState<CustomerLayoutMode>(
+    customerLayoutModes.includes(initialLayout as CustomerLayoutMode)
+      ? (initialLayout as CustomerLayoutMode)
+      : "table"
+  )
 
   const [customers, setCustomers] = useState(customerDirectory)
   const [query, setQuery] = useState("")
@@ -335,6 +349,22 @@ export function CustomersPage({ initialView = "all" }: CustomersPageProps) {
     )
   }, [filteredCustomers, tableToolbarProps])
 
+  const handleLayoutModeChange = useCallback(
+    (nextLayoutMode: CustomerLayoutMode) => {
+      if (nextLayoutMode === layoutMode) return
+
+      if (nextLayoutMode !== "table" && tableToolbarProps) {
+        if (tableToolbarProps.selectedRowCount > 0) {
+          tableToolbarProps.clearSelection()
+        }
+        setTableToolbarProps(null)
+      }
+
+      setLayoutMode(nextLayoutMode)
+    },
+    [layoutMode, tableToolbarProps]
+  )
+
   return (
     <div
       ref={pageContentRef}
@@ -360,6 +390,8 @@ export function CustomersPage({ initialView = "all" }: CustomersPageProps) {
         onQueryChange={setQuery}
         healthFilter={healthFilter}
         onHealthFilterChange={setHealthFilter}
+        layoutMode={layoutMode}
+        onLayoutModeChange={handleLayoutModeChange}
         tableActions={
           <CustomersTableActions
             tableToolbarProps={tableToolbarProps}
@@ -373,11 +405,15 @@ export function CustomersPage({ initialView = "all" }: CustomersPageProps) {
 
       <div className="min-h-0 flex-1">
         {filteredCustomers.length > 0 ? (
-          <CustomersTable
-            customers={filteredCustomers}
-            onCustomersChange={handleVisibleCustomersChange}
-            onToolbarPropsChange={setTableToolbarProps}
-          />
+          layoutMode === "table" ? (
+            <CustomersTable
+              customers={filteredCustomers}
+              onCustomersChange={handleVisibleCustomersChange}
+              onToolbarPropsChange={setTableToolbarProps}
+            />
+          ) : (
+            <CustomerCardGrid customers={filteredCustomers} />
+          )
         ) : (
           <div className="flex h-full min-h-[280px] items-center justify-center rounded-xl border border-dashed bg-muted/20 px-6 py-14 text-center">
             <div>
@@ -393,24 +429,29 @@ export function CustomersPage({ initialView = "all" }: CustomersPageProps) {
         )}
       </div>
 
-      <CustomersSelectionActionBar
-        tableToolbarProps={tableToolbarProps}
-        onMarkHealthy={() =>
-          mutateSelectedCustomers((customer) => ({ ...customer, health: "healthy" }))
-        }
-        onMoveToWatch={() =>
-          mutateSelectedCustomers((customer) => ({ ...customer, health: "watch" }))
-        }
-        onArchive={() =>
-          mutateSelectedCustomers((customer) => ({
-            ...customer,
-            lifecycle: "archived",
-            health: customer.health === "at_risk" ? "watch" : customer.health,
-          }))
-        }
-        onExportSelection={exportSelection}
-        overlayStyle={pageContentOverlayStyle}
-      />
+      {layoutMode === "table" ? (
+        <CustomersSelectionActionBar
+          tableToolbarProps={tableToolbarProps}
+          onMarkHealthy={() =>
+            mutateSelectedCustomers((customer) => ({
+              ...customer,
+              health: "healthy",
+            }))
+          }
+          onMoveToWatch={() =>
+            mutateSelectedCustomers((customer) => ({ ...customer, health: "watch" }))
+          }
+          onArchive={() =>
+            mutateSelectedCustomers((customer) => ({
+              ...customer,
+              lifecycle: "archived",
+              health: customer.health === "at_risk" ? "watch" : customer.health,
+            }))
+          }
+          onExportSelection={exportSelection}
+          overlayStyle={pageContentOverlayStyle}
+        />
+      ) : null}
     </div>
   )
 }

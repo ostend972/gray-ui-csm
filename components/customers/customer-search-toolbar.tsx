@@ -1,5 +1,10 @@
 import type { ReactNode } from "react"
-import { IconAdjustmentsHorizontal, IconSearch } from "@tabler/icons-react"
+import {
+  IconAdjustmentsHorizontal,
+  IconLayoutGrid,
+  IconSearch,
+  IconTable,
+} from "@tabler/icons-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -9,8 +14,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 import { customerHealthLabels } from "@/lib/customers/types"
-import type { CustomerHealth } from "@/lib/customers/types"
+import type { CustomerHealth, CustomerLayoutMode } from "@/lib/customers/types"
 
 type CustomerHealthFilter = "all" | CustomerHealth
 
@@ -19,6 +25,8 @@ type CustomerSearchToolbarProps = {
   onQueryChange: (query: string) => void
   healthFilter: CustomerHealthFilter
   onHealthFilterChange: (health: CustomerHealthFilter) => void
+  layoutMode: CustomerLayoutMode
+  onLayoutModeChange: (layoutMode: CustomerLayoutMode) => void
   tableActions?: ReactNode
 }
 
@@ -41,6 +49,8 @@ export function CustomerSearchToolbar({
   onQueryChange,
   healthFilter,
   onHealthFilterChange,
+  layoutMode,
+  onLayoutModeChange,
   tableActions,
 }: CustomerSearchToolbarProps) {
   return (
@@ -85,9 +95,35 @@ export function CustomerSearchToolbar({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <div className="flex items-center gap-1 rounded-xl border bg-background p-1 max-sm:gap-0.5 max-sm:p-0.5">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className={cn(
+                "size-7 rounded-lg max-sm:size-[26px]",
+                layoutMode === "card" && "bg-muted/70"
+              )}
+              aria-label="Card view"
+              onClick={() => onLayoutModeChange("card")}
+            >
+              <IconLayoutGrid className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className={cn(
+                "size-7 rounded-lg max-sm:size-[26px]",
+                layoutMode === "table" && "bg-muted/70"
+              )}
+              aria-label="Table view"
+              onClick={() => onLayoutModeChange("table")}
+            >
+              <IconTable className="size-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </section>
   )
 }
-

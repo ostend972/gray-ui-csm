@@ -16,6 +16,8 @@ export type CustomerViewKey =
   | "renewal"
   | "high-touch"
 
+export type CustomerLayoutMode = "table" | "card"
+
 export type CustomerOwner = {
   name: string
   email: string

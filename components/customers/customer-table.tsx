@@ -20,6 +20,7 @@ import {
   type DataGridDrawerPanelProps,
   type DataGridToolbarRenderProps,
 } from "@/components/data-grid"
+import { CustomerInitialAvatar } from "@/components/customers/customer-initial-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -203,11 +204,10 @@ function renderStaticCustomerCell(
   if (columnId === "customer") {
     return (
       <div className="flex min-w-0 items-center gap-3">
-        <Avatar className="size-6 border bg-background" size="sm">
-          <AvatarFallback className="text-[10px] font-semibold">
-            {getInitials(customer.primaryContactName)}
-          </AvatarFallback>
-        </Avatar>
+        <CustomerInitialAvatar
+          name={customer.primaryContactName}
+          size="sm"
+        />
         <div className="truncate text-sm font-medium text-foreground">
           {customer.primaryContactName}
         </div>
@@ -225,6 +225,7 @@ function renderStaticCustomerCell(
 
   if (columnId === "organization") {
     const brand = getCustomerBrandPresentation(customer.id, customer.companyName)
+    const BrandIcon = brand.icon
 
     return (
       <div className="flex min-w-0 items-center gap-3">
@@ -232,7 +233,11 @@ function renderStaticCustomerCell(
           <AvatarFallback
             className={cn("text-[10px] font-semibold", brand.className)}
           >
-            {brand.fallback}
+            {BrandIcon ? (
+              <BrandIcon className="size-3.5" />
+            ) : (
+              brand.fallback
+            )}
           </AvatarFallback>
         </Avatar>
         <div className="truncate text-sm font-medium text-foreground">
@@ -303,6 +308,9 @@ function CustomerDrawerPanel({
   "drawerRow" | "closeDrawer"
 >) {
   const customer = drawerRow
+  const customerBrand = customer
+    ? getCustomerBrandPresentation(customer.id, customer.companyName)
+    : null
 
   return (
     <DialogPrimitive.Portal>
@@ -335,15 +343,15 @@ function CustomerDrawerPanel({
           <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
             <section className="rounded-2xl border bg-card p-4">
               <div className="flex items-start gap-4">
-                <Avatar className="size-12">
-                  {customer.owner.avatarUrl ? (
-                    <AvatarImage
-                      src={customer.owner.avatarUrl}
-                      alt={customer.companyName}
-                    />
-                  ) : null}
-                  <AvatarFallback className="font-semibold">
-                    {getInitials(customer.companyName)}
+                <Avatar className="size-12 border bg-background">
+                  <AvatarFallback
+                    className={cn("font-semibold", customerBrand?.className)}
+                  >
+                    {customerBrand?.icon ? (
+                      <customerBrand.icon className="size-6" />
+                    ) : (
+                      getInitials(customer.companyName)
+                    )}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
