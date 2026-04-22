@@ -129,6 +129,20 @@ const replyActionOptions: Array<{
 
 const noAssigneeValue = "__unassigned__"
 const noRequesterValue = "__no-requester__"
+const DRAWER_MOTION = {
+  enterYOffsetLimit: 14,
+  exitYOffsetLimit: 8,
+  yOffsetDivider: 20,
+  exitOffsetRatio: 0.4,
+  enterSlideWidthRatio: 0.35,
+  enterSlideMin: 44,
+  enterSlideMax: 72,
+  exitSlidePx: 40,
+} as const
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value))
+}
 
 function normalizePriority(priority: TicketPriority) {
   if (priority === "urgent") return "high"
@@ -152,12 +166,25 @@ function getDrawerMotionStyle(origin?: TicketDrawerOrigin | null) {
 
   const centerY = origin.y + origin.height / 2
   const viewportCenterY = window.innerHeight / 2
-  const shiftY = Math.max(-14, Math.min(14, (centerY - viewportCenterY) / 20))
-  const exitShiftY = Math.max(-8, Math.min(8, shiftY * 0.4))
+  const shiftY = clamp(
+    (centerY - viewportCenterY) / DRAWER_MOTION.yOffsetDivider,
+    -DRAWER_MOTION.enterYOffsetLimit,
+    DRAWER_MOTION.enterYOffsetLimit
+  )
+  const exitShiftY = clamp(
+    shiftY * DRAWER_MOTION.exitOffsetRatio,
+    -DRAWER_MOTION.exitYOffsetLimit,
+    DRAWER_MOTION.exitYOffsetLimit
+  )
+  const enterSlide = clamp(
+    origin.width * DRAWER_MOTION.enterSlideWidthRatio,
+    DRAWER_MOTION.enterSlideMin,
+    DRAWER_MOTION.enterSlideMax
+  )
 
   return {
-    "--drawer-slide-enter-x": `${Math.max(44, Math.min(72, origin.width * 0.35)).toFixed(1)}px`,
-    "--drawer-slide-exit-x": "40px",
+    "--drawer-slide-enter-x": `${enterSlide.toFixed(1)}px`,
+    "--drawer-slide-exit-x": `${DRAWER_MOTION.exitSlidePx}px`,
     "--drawer-origin-enter-y": `${shiftY.toFixed(1)}px`,
     "--drawer-origin-exit-y": `${exitShiftY.toFixed(1)}px`,
   } as React.CSSProperties
