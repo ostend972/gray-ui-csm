@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { getCustomerInitials } from "@/lib/customers/presentation"
 import { cn } from "@/lib/utils"
 
 type CustomerInitialAvatarSize = "sm" | "md" | "lg"
@@ -21,15 +22,6 @@ const fallbackTextClassName: Record<CustomerInitialAvatarSize, string> = {
   lg: "text-sm",
 }
 
-function getInitials(value: string) {
-  return value
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-}
-
 export function CustomerInitialAvatar({
   name,
   size = "md",
@@ -46,12 +38,12 @@ export function CustomerInitialAvatar({
       <AvatarFallback
         aria-label={name}
         className={cn(
-          "bg-primary/30 text-primary-foreground border border-primary",
+          "border border-primary bg-primary/30 text-primary-foreground",
           fallbackTextClassName[size],
           "flex items-center justify-center"
         )}
       >
-        {getInitials(name)}
+        {getCustomerInitials(name)}
       </AvatarFallback>
     </Avatar>
   )

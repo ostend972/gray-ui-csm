@@ -28,11 +28,17 @@ export type CustomerTicketStatus = "open" | "pending" | "resolved"
 
 export type CustomerTicketPriority = "high" | "medium" | "low"
 
+export type CustomerResponseTone = "slow" | "steady" | "healthy"
+
+export type CustomerActivityTone = "neutral" | "warning" | "positive"
+
 export type CustomerRecentTicket = {
   id: string
   subject: string
   status: CustomerTicketStatus
   priority: CustomerTicketPriority
+  assigneeLabel: string
+  requestDate: string
 }
 
 export type Customer = {
@@ -40,8 +46,15 @@ export type Customer = {
   companyName: string
   primaryContactName: string
   primaryContactEmail: string
+  alternateEmails: string[]
+  phoneNumber: string
   website: string
   region: string
+  source: string
+  responseTimeLabel: string
+  languagesSpoken: string[]
+  timezone: string
+  firstContactDate: string
   segment: string
   plan: CustomerPlan
   lifecycle: CustomerLifecycle

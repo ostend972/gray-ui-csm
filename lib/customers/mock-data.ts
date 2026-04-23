@@ -1,11 +1,26 @@
 import { currentUser } from "@/lib/current-user"
 import type {
   Customer,
+  CustomerRecentTicket,
   CustomerLifecycle,
   CustomerOwner,
   CustomerSidebarGroup,
   CustomerViewKey,
 } from "@/lib/customers/types"
+
+type RawCustomer = Omit<
+  Customer,
+  | "alternateEmails"
+  | "phoneNumber"
+  | "source"
+  | "responseTimeLabel"
+  | "languagesSpoken"
+  | "timezone"
+  | "firstContactDate"
+  | "recentTickets"
+> & {
+  recentTickets: Omit<CustomerRecentTicket, "assigneeLabel" | "requestDate">[]
+}
 
 const owners: Record<string, CustomerOwner> = {
   jason: {
@@ -27,7 +42,145 @@ const owners: Record<string, CustomerOwner> = {
   },
 }
 
-export const customerDirectory: Customer[] = [
+const alternateEmailsByCompany: Partial<Record<string, string[]>> = {
+  "Lattice Cloud": ["amelia.ops@latticecloud.io"],
+  "Northstar Health": ["daniel.team@northstarhealth.com"],
+  AeroLoft: ["nina.ops@aeroloft.co"],
+  "Polar Banking": ["marcus.pm@polarbanking.fi"],
+  BrightHarbor: ["olivia.ops@brightharbor.com"],
+  "Fieldhouse Retail": ["jared.support@fieldhouse-retail.com"],
+  "Cinder AI": ["ruby.success@cinder.ai"],
+  "Summit Grid": ["leah.ops@summitgrid.energy"],
+  "Verdant Pay": ["isaac.finance@verdantpay.com"],
+  "Maple Security": ["evelyn.audit@maplesecurity.ca"],
+  "Orbit Fulfillment": ["hugo.ops@orbitfulfillment.mx"],
+  "Blueforge Labs": ["mina.exec@blueforge.ai"],
+  "Helios Energy": ["patrick.ops@heliosenergy.eu"],
+}
+
+const regionMetadata: Record<
+  string,
+  { languagesSpoken: string[]; timezone: string; source: string }
+> = {
+  Singapore: {
+    languagesSpoken: ["English", "Mandarin"],
+    timezone: "UTC+08:00",
+    source: "Executive expansion motion",
+  },
+  "United States": {
+    languagesSpoken: ["English", "Spanish"],
+    timezone: "UTC-05:00",
+    source: "Customer success portfolio",
+  },
+  "United Kingdom": {
+    languagesSpoken: ["English", "Italian"],
+    timezone: "UTC+00:00",
+    source: "Implementation handoff",
+  },
+  Nordics: {
+    languagesSpoken: ["English", "Swedish"],
+    timezone: "UTC+01:00",
+    source: "Executive expansion motion",
+  },
+  Australia: {
+    languagesSpoken: ["English"],
+    timezone: "UTC+10:00",
+    source: "Customer success portfolio",
+  },
+  "Hong Kong": {
+    languagesSpoken: ["English", "Cantonese"],
+    timezone: "UTC+08:00",
+    source: "Regional success motion",
+  },
+  Canada: {
+    languagesSpoken: ["English", "French"],
+    timezone: "UTC-05:00",
+    source: "Customer success portfolio",
+  },
+  Germany: {
+    languagesSpoken: ["German", "English"],
+    timezone: "UTC+01:00",
+    source: "Executive recovery motion",
+  },
+  Mexico: {
+    languagesSpoken: ["Spanish", "English"],
+    timezone: "UTC-06:00",
+    source: "Regional expansion motion",
+  },
+}
+
+function buildPhoneNumber(customerId: string) {
+  const seed = customerId
+    .split("")
+    .reduce((sum, char) => sum + char.charCodeAt(0), 0)
+  const partA = String(200 + (seed % 700)).padStart(3, "0")
+  const partB = String(100 + (seed % 900)).padStart(3, "0")
+  const partC = String(1000 + (seed % 9000)).padStart(4, "0")
+  return `(${partA}) ${partB}-${partC}`
+}
+
+function buildFirstContactDate(
+  customer: Pick<Customer, "id" | "region" | "seats">
+) {
+  const seed = customer.id.length + customer.region.length + customer.seats
+  const month = ((seed % 12) + 1).toString().padStart(2, "0")
+  const day = ((seed % 27) + 1).toString().padStart(2, "0")
+  return `${month}/${day}/2023`
+}
+
+function buildResponseTimeLabel(customer: Pick<Customer, "health">) {
+  if (customer.health === "at_risk") return "Slow response"
+  if (customer.health === "watch") return "Steady cadence"
+  return "Healthy cadence"
+}
+
+function buildTicketMetadata(
+  ticket: RawCustomer["recentTickets"][number],
+  ownerName: string
+) {
+  const seed = ticket.id
+    .split("")
+    .reduce((sum, char) => sum + char.charCodeAt(0), 0)
+  const month = ((seed % 12) + 1).toString().padStart(2, "0")
+  const day = ((seed % 27) + 1).toString().padStart(2, "0")
+
+  return {
+    ...ticket,
+    assigneeLabel:
+      ticket.priority === "high"
+        ? ownerName
+        : ticket.status === "resolved"
+          ? "Support ops"
+          : "Customer success",
+    requestDate: `${month}/${day}/2024`,
+  }
+}
+
+function enrichCustomer(customer: RawCustomer): Customer {
+  const region = regionMetadata[customer.region] ?? {
+    languagesSpoken: ["English"],
+    timezone: "UTC+00:00",
+    source: "Customer success portfolio",
+  }
+
+  return {
+    ...customer,
+    alternateEmails: alternateEmailsByCompany[customer.companyName] ?? [
+      `${customer.primaryContactName.split(" ")[0].toLowerCase()}.ops@${customer.primaryContactEmail.split("@")[1]}`,
+    ],
+    phoneNumber: buildPhoneNumber(customer.id),
+    source: region.source,
+    responseTimeLabel: buildResponseTimeLabel(customer),
+    languagesSpoken: region.languagesSpoken,
+    timezone: region.timezone,
+    firstContactDate: buildFirstContactDate(customer),
+    recentTickets: customer.recentTickets.map((ticket) =>
+      buildTicketMetadata(ticket, customer.owner.name)
+    ),
+  }
+}
+
+const rawCustomerDirectory: RawCustomer[] = [
   {
     id: "lattice-cloud",
     companyName: "Lattice Cloud",
@@ -299,7 +452,9 @@ export const customerDirectory: Customer[] = [
     notes:
       "They want a simple rollout. Keep the experience opinionated and low-maintenance for the first month.",
     productAreas: ["Inbox", "Knowledge Base"],
-    riskSignals: ["Watch for self-serve setup questions during the first 30 days."],
+    riskSignals: [
+      "Watch for self-serve setup questions during the first 30 days.",
+    ],
     recentTickets: [
       {
         id: "T-1411",
@@ -378,7 +533,9 @@ export const customerDirectory: Customer[] = [
     notes:
       "Good opportunity to package automation templates and rollout support as part of the renewal conversation.",
     productAreas: ["Automation", "Accounts"],
-    riskSignals: ["Keep invoice ticket moving so finance sign-off stays clean."],
+    riskSignals: [
+      "Keep invoice ticket moving so finance sign-off stays clean.",
+    ],
     recentTickets: [
       {
         id: "T-1449",
@@ -451,7 +608,9 @@ export const customerDirectory: Customer[] = [
     notes:
       "Customer asked for playbook templates to replicate the same setup across two new regions.",
     productAreas: ["Automation", "Inbox"],
-    riskSignals: ["No active blockers. Keep rollout momentum for regional expansion."],
+    riskSignals: [
+      "No active blockers. Keep rollout momentum for regional expansion.",
+    ],
     recentTickets: [
       {
         id: "T-1454",
@@ -530,7 +689,9 @@ export const customerDirectory: Customer[] = [
     notes:
       "Expansion opportunity is tied to implementing multilingual support dashboards next quarter.",
     productAreas: ["Analytics", "Accounts", "Automation"],
-    riskSignals: ["No immediate risk. Continue expansion discovery with regional leads."],
+    riskSignals: [
+      "No immediate risk. Continue expansion discovery with regional leads.",
+    ],
     recentTickets: [
       {
         id: "T-1456",
@@ -755,6 +916,9 @@ export const customerDirectory: Customer[] = [
     ],
   },
 ]
+
+export const customerDirectory: Customer[] =
+  rawCustomerDirectory.map(enrichCustomer)
 
 const CUSTOMER_SEGMENTS = [
   "Strategic",

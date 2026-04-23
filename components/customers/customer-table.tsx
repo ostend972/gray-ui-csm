@@ -2,7 +2,6 @@
 
 import * as React from "react"
 
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import {
   IconAlertTriangle,
   IconBuilding,
@@ -11,26 +10,24 @@ import {
   IconLayoutList,
   IconMail,
   IconUser,
-  IconX,
 } from "@tabler/icons-react"
 
 import {
   DataGrid,
   type DataGridColumn,
-  type DataGridDrawerPanelProps,
   type DataGridToolbarRenderProps,
 } from "@/components/data-grid"
 import { CustomerInitialAvatar } from "@/components/customers/customer-initial-avatar"
+import { CustomerPreviewDrawerContent } from "@/components/customers/customer-preview-drawer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { getCustomerBrandPresentation } from "@/components/customers/customer-brand"
-import { customerHealthLabels, customerLifecycleLabels } from "@/lib/customers/types"
-import type {
-  Customer,
-  CustomerHealth,
-  CustomerLifecycle,
-} from "@/lib/customers/types"
+import {
+  customerHealthToneClassName,
+  getCustomerInitials,
+} from "@/lib/customers/presentation"
+import { customerHealthLabels } from "@/lib/customers/types"
+import type { Customer, CustomerHealth } from "@/lib/customers/types"
 import { cn } from "@/lib/utils"
 
 export type CustomerColumnId =
@@ -126,37 +123,6 @@ const customerColumns: DataGridColumn<CustomerColumnId>[] = [
   },
 ]
 
-const healthToneClassName: Record<CustomerHealth, string> = {
-  healthy:
-    "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
-  watch:
-    "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300",
-  at_risk:
-    "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300",
-}
-
-const lifecycleToneClassName: Record<CustomerLifecycle, string> = {
-  onboarding:
-    "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-300",
-  active:
-    "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
-  renewal:
-    "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-900/60 dark:bg-violet-950/40 dark:text-violet-300",
-  paused:
-    "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300",
-  archived:
-    "border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300",
-}
-
-function getInitials(value: string) {
-  return value
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-}
-
 function formatCompactCurrency(value: number) {
   if (value >= 1000) {
     return `$${Math.round(value / 1000)}k`
@@ -171,28 +137,10 @@ function CustomerHealthBadge({ health }: { health: CustomerHealth }) {
       variant="outline"
       className={cn(
         "justify-center rounded-full px-2.5 py-1 text-[11px] font-medium",
-        healthToneClassName[health]
+        customerHealthToneClassName[health]
       )}
     >
       {customerHealthLabels[health]}
-    </Badge>
-  )
-}
-
-function CustomerLifecycleBadge({
-  lifecycle,
-}: {
-  lifecycle: CustomerLifecycle
-}) {
-  return (
-    <Badge
-      variant="outline"
-      className={cn(
-        "justify-center rounded-full px-2.5 py-1 text-[11px] font-medium",
-        lifecycleToneClassName[lifecycle]
-      )}
-    >
-      {customerLifecycleLabels[lifecycle]}
     </Badge>
   )
 }
@@ -204,10 +152,7 @@ function renderStaticCustomerCell(
   if (columnId === "customer") {
     return (
       <div className="flex min-w-0 items-center gap-3">
-        <CustomerInitialAvatar
-          name={customer.primaryContactName}
-          size="sm"
-        />
+        <CustomerInitialAvatar name={customer.primaryContactName} size="sm" />
         <div className="truncate text-sm font-medium text-foreground">
           {customer.primaryContactName}
         </div>
@@ -224,7 +169,10 @@ function renderStaticCustomerCell(
   }
 
   if (columnId === "organization") {
-    const brand = getCustomerBrandPresentation(customer.id, customer.companyName)
+    const brand = getCustomerBrandPresentation(
+      customer.id,
+      customer.companyName
+    )
     const BrandIcon = brand.icon
 
     return (
@@ -233,11 +181,7 @@ function renderStaticCustomerCell(
           <AvatarFallback
             className={cn("text-[10px] font-semibold", brand.className)}
           >
-            {BrandIcon ? (
-              <BrandIcon className="size-3.5" />
-            ) : (
-              brand.fallback
-            )}
+            {BrandIcon ? <BrandIcon className="size-3.5" /> : brand.fallback}
           </AvatarFallback>
         </Avatar>
         <div className="truncate text-sm font-medium text-foreground">
@@ -287,194 +231,18 @@ function renderStaticCustomerCell(
     <div className="flex min-w-0 items-center gap-3">
       <Avatar size="sm">
         {customer.owner.avatarUrl ? (
-          <AvatarImage src={customer.owner.avatarUrl} alt={customer.owner.name} />
+          <AvatarImage
+            src={customer.owner.avatarUrl}
+            alt={customer.owner.name}
+          />
         ) : null}
         <AvatarFallback className="text-[10px] font-semibold">
-          {getInitials(customer.owner.name)}
+          {getCustomerInitials(customer.owner.name)}
         </AvatarFallback>
       </Avatar>
       <div className="truncate text-sm font-medium text-foreground">
         {customer.owner.name}
       </div>
-    </div>
-  )
-}
-
-function CustomerDrawerPanel({
-  drawerRow,
-  closeDrawer,
-}: Pick<
-  DataGridDrawerPanelProps<Customer, CustomerColumnId>,
-  "drawerRow" | "closeDrawer"
->) {
-  const customer = drawerRow
-  const customerBrand = customer
-    ? getCustomerBrandPresentation(customer.id, customer.companyName)
-    : null
-
-  return (
-    <DialogPrimitive.Portal>
-      <DialogPrimitive.Popup className="data-open:translate-x-0 data-closed:translate-x-full fixed top-0 right-0 z-50 flex h-dvh w-full max-w-xl translate-x-full flex-col border-l bg-background shadow-xl ring-1 ring-foreground/10 outline-none transition-transform duration-200">
-        <div className="flex items-center justify-between gap-3 border-b px-5 py-4">
-          <div className="min-w-0">
-            <DialogPrimitive.Title className="truncate text-base font-semibold">
-              {customer?.companyName ?? "Customer profile"}
-            </DialogPrimitive.Title>
-            <DialogPrimitive.Description className="text-sm text-muted-foreground">
-              {customer?.summary ?? "Customer quick view"}
-            </DialogPrimitive.Description>
-          </div>
-          <DialogPrimitive.Close
-            render={
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="rounded-full"
-                aria-label="Close drawer"
-                onClick={closeDrawer}
-              />
-            }
-          >
-            <IconX className="size-4" />
-          </DialogPrimitive.Close>
-        </div>
-
-        {customer ? (
-          <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
-            <section className="rounded-2xl border bg-card p-4">
-              <div className="flex items-start gap-4">
-                <Avatar className="size-12 border bg-background">
-                  <AvatarFallback
-                    className={cn("font-semibold", customerBrand?.className)}
-                  >
-                    {customerBrand?.icon ? (
-                      <customerBrand.icon className="size-6" />
-                    ) : (
-                      getInitials(customer.companyName)
-                    )}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-base font-semibold">
-                      {customer.primaryContactName}
-                    </h2>
-                    <CustomerHealthBadge health={customer.health} />
-                    <CustomerLifecycleBadge lifecycle={customer.lifecycle} />
-                  </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {customer.primaryContactEmail}
-                  </p>
-                  <p className="mt-3 text-sm text-foreground">
-                    {customer.notes}
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <section className="grid gap-3 sm:grid-cols-2">
-              <QuickFact
-                label="Annual value"
-                value={currencyFormatter.format(customer.annualValue)}
-              />
-              <QuickFact
-                label="Open tickets"
-                value={numberFormatter.format(customer.openTickets)}
-              />
-              <QuickFact label="Plan" value={`${customer.plan} · ${customer.segment}`} />
-              <QuickFact label="Next renewal" value={customer.nextRenewalLabel} />
-              <QuickFact label="Region" value={customer.region} />
-              <QuickFact label="Workspace owner" value={customer.owner.name} />
-            </section>
-
-            <section className="rounded-2xl border bg-card p-4">
-              <h3 className="text-sm font-semibold text-foreground">
-                Product footprint
-              </h3>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {customer.productAreas.map((area) => (
-                  <Badge key={area} variant="secondary" className="rounded-full">
-                    {area}
-                  </Badge>
-                ))}
-              </div>
-            </section>
-
-            <section className="rounded-2xl border bg-card p-4">
-              <h3 className="text-sm font-semibold text-foreground">
-                Risk signals
-              </h3>
-              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                {customer.riskSignals.map((riskSignal) => (
-                  <li key={riskSignal} className="flex gap-2">
-                    <span className="mt-1 size-1.5 rounded-full bg-amber-500" />
-                    <span>{riskSignal}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section className="rounded-2xl border bg-card p-4">
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="text-sm font-semibold text-foreground">
-                  Recent tickets
-                </h3>
-                <span className="text-xs text-muted-foreground">
-                  Last touch {customer.lastTouchDate}
-                </span>
-              </div>
-
-              {customer.recentTickets.length > 0 ? (
-                <div className="mt-3 space-y-3">
-                  {customer.recentTickets.map((ticket) => (
-                    <div
-                      key={ticket.id}
-                      className="rounded-xl border bg-muted/20 px-3 py-3"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-foreground">
-                          {ticket.subject}
-                        </p>
-                        <span className="shrink-0 text-xs text-muted-foreground">
-                          {ticket.id}
-                        </span>
-                      </div>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <Badge variant="outline" className="rounded-full capitalize">
-                          {ticket.status}
-                        </Badge>
-                        <Badge variant="secondary" className="rounded-full capitalize">
-                          {ticket.priority}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  No active ticket threads. This account is currently running
-                  clean.
-                </p>
-              )}
-            </section>
-          </div>
-        ) : null}
-
-        <div className="flex items-center justify-end border-t px-5 py-4">
-          <DialogPrimitive.Close
-            render={<Button variant="outline" onClick={closeDrawer}>Close</Button>}
-          />
-        </div>
-      </DialogPrimitive.Popup>
-    </DialogPrimitive.Portal>
-  )
-}
-
-function QuickFact({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border bg-card p-4">
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 text-sm font-medium text-foreground">{value}</div>
     </div>
   )
 }
@@ -538,7 +306,10 @@ export function CustomersTable({
           renderStaticCustomerCell(customer, columnId)
         }
         renderDrawerPanel={({ drawerRow, closeDrawer }) => (
-          <CustomerDrawerPanel drawerRow={drawerRow} closeDrawer={closeDrawer} />
+          <CustomerPreviewDrawerContent
+            customer={drawerRow}
+            onClose={closeDrawer}
+          />
         )}
         renderSummary={(column, visibleRows) => {
           const visibleAverageCsat =
@@ -553,13 +324,19 @@ export function CustomersTable({
 
           if (column.id === "openTickets") {
             return numberFormatter.format(
-              visibleRows.reduce((sum, customer) => sum + customer.openTickets, 0)
+              visibleRows.reduce(
+                (sum, customer) => sum + customer.openTickets,
+                0
+              )
             )
           }
 
           if (column.id === "annualValue") {
             return formatCompactCurrency(
-              visibleRows.reduce((sum, customer) => sum + customer.annualValue, 0)
+              visibleRows.reduce(
+                (sum, customer) => sum + customer.annualValue,
+                0
+              )
             )
           }
 
