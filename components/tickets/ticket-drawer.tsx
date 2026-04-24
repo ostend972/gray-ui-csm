@@ -40,6 +40,7 @@ import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select"
@@ -606,40 +607,42 @@ function TicketDrawerPanel({
                 <IconDots className="size-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-52">
-                <DropdownMenuItem
-                  onClick={() =>
-                    updateTicket((currentTicket) => ({
-                      ...currentTicket,
-                      assignee: {
-                        name: currentUser.name,
-                        avatarUrl: currentUser.avatar,
-                        email: currentUser.email,
-                      },
-                      mine: true,
-                    }))
-                  }
-                >
-                  Assign to me
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    updateTicket((currentTicket) => ({
-                      ...currentTicket,
-                      tags: [],
-                      followers: [],
-                    }))
-                  }
-                >
-                  Clear tags and followers
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/accounts")}>
-                  Manage accounts
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => router.push(`/tickets/${ticket.id}`)}
-                >
-                  Open full detail page
-                </DropdownMenuItem>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      updateTicket((currentTicket) => ({
+                        ...currentTicket,
+                        assignee: {
+                          name: currentUser.name,
+                          avatarUrl: currentUser.avatar,
+                          email: currentUser.email,
+                        },
+                        mine: true,
+                      }))
+                    }
+                  >
+                    Assign to me
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      updateTicket((currentTicket) => ({
+                        ...currentTicket,
+                        tags: [],
+                        followers: [],
+                      }))
+                    }
+                  >
+                    Clear tags and followers
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/accounts")}>
+                    Manage accounts
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push(`/tickets/${ticket.id}`)}
+                  >
+                    Open full detail page
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -741,12 +744,14 @@ function TicketDrawerPanel({
                         </DropdownMenuRadioGroup>
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="rounded-xl px-2 text-sm underline-offset-2 hover:underline"
-                        onClick={() => router.push("/accounts")}
-                      >
-                        Add account
-                      </DropdownMenuItem>
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem
+                          className="rounded-xl px-2 text-sm underline-offset-2 hover:underline"
+                          onClick={() => router.push("/accounts")}
+                        >
+                          Add account
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -997,11 +1002,13 @@ function TicketDrawerPanel({
                     </span>
                   </FieldSelectTrigger>
                   <SelectContent align="start" className="min-w-48">
-                    {ticketTypeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
+                    <SelectGroup>
+                      {ticketTypeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </MetadataField>
@@ -1050,15 +1057,17 @@ function TicketDrawerPanel({
                       )}
                     </FieldSelectTrigger>
                     <SelectContent align="start" className="min-w-52">
-                      <SelectItem value={noRequesterValue}>
-                        Select requester
-                      </SelectItem>
-                      {sortedPeopleOptions.map((person) => (
-                        <SelectItem key={person.name} value={person.name}>
-                          <PersonAvatar person={person} />
-                          <span>{person.name}</span>
+                      <SelectGroup>
+                        <SelectItem value={noRequesterValue}>
+                          Select requester
                         </SelectItem>
-                      ))}
+                        {sortedPeopleOptions.map((person) => (
+                          <SelectItem key={person.name} value={person.name}>
+                            <PersonAvatar person={person} />
+                            <span>{person.name}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 </MetadataField>
@@ -1103,15 +1112,17 @@ function TicketDrawerPanel({
                       )}
                     </FieldSelectTrigger>
                     <SelectContent align="start" className="min-w-52">
-                      <SelectItem value={noAssigneeValue}>
-                        Select assignee
-                      </SelectItem>
-                      {sortedAssigneeOptions.map((assignee) => (
-                        <SelectItem key={assignee.name} value={assignee.name}>
-                          <PersonAvatar person={assignee} />
-                          <span>{assignee.name}</span>
+                      <SelectGroup>
+                        <SelectItem value={noAssigneeValue}>
+                          Select assignee
                         </SelectItem>
-                      ))}
+                        {sortedAssigneeOptions.map((assignee) => (
+                          <SelectItem key={assignee.name} value={assignee.name}>
+                            <PersonAvatar person={assignee} />
+                            <span>{assignee.name}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 </MetadataField>
@@ -1214,29 +1225,31 @@ function TicketDrawerPanel({
                       <IconPlus className="size-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="min-w-56">
-                      {availableFollowers.length === 0 ? (
-                        <DropdownMenuItem disabled>
-                          Everyone is already added
-                        </DropdownMenuItem>
-                      ) : (
-                        availableFollowers.map((person) => (
-                          <DropdownMenuItem
-                            key={person.name}
-                            onClick={() =>
-                              updateTicket((currentTicket) => ({
-                                ...currentTicket,
-                                followers: [
-                                  ...(currentTicket.followers ?? []),
-                                  person,
-                                ],
-                              }))
-                            }
-                          >
-                            <PersonAvatar person={person} />
-                            <span>{person.name}</span>
+                      <DropdownMenuGroup>
+                        {availableFollowers.length === 0 ? (
+                          <DropdownMenuItem disabled>
+                            Everyone is already added
                           </DropdownMenuItem>
-                        ))
-                      )}
+                        ) : (
+                          availableFollowers.map((person) => (
+                            <DropdownMenuItem
+                              key={person.name}
+                              onClick={() =>
+                                updateTicket((currentTicket) => ({
+                                  ...currentTicket,
+                                  followers: [
+                                    ...(currentTicket.followers ?? []),
+                                    person,
+                                  ],
+                                }))
+                              }
+                            >
+                              <PersonAvatar person={person} />
+                              <span>{person.name}</span>
+                            </DropdownMenuItem>
+                          ))
+                        )}
+                      </DropdownMenuGroup>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -1333,18 +1346,22 @@ function TicketDrawerPanel({
                   <IconChevronDown className="size-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64">
-                  {replyActionOptions.map((option) => (
-                    <DropdownMenuItem
-                      key={option.action}
-                      onClick={() => onSubmitMessage(ticket.id, option.action)}
-                    >
-                      {option.icon}
-                      {option.label}
-                      <DropdownMenuShortcut>
-                        {option.shortcut}
-                      </DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                  ))}
+                  <DropdownMenuGroup>
+                    {replyActionOptions.map((option) => (
+                      <DropdownMenuItem
+                        key={option.action}
+                        onClick={() =>
+                          onSubmitMessage(ticket.id, option.action)
+                        }
+                      >
+                        {option.icon}
+                        {option.label}
+                        <DropdownMenuShortcut>
+                          {option.shortcut}
+                        </DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

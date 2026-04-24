@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -138,18 +139,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <IconDots className="size-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-44 sm:hidden">
-                  <DropdownMenuItem>
-                    <IconSearch className="size-4" />
-                    Search
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <IconBell className="size-4" />
-                    Notifications
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <IconMessage2 className="size-4" />
-                    Chat
-                  </DropdownMenuItem>
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <IconSearch className="size-4" />
+                      Search
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <IconBell className="size-4" />
+                      Notifications
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <IconMessage2 className="size-4" />
+                      Chat
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
               <FloatingThemeToggle />
@@ -163,12 +166,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ) : null}
         <main
           className={cn(
-            "mx-auto flex min-w-0 w-full flex-1 flex-col overflow-x-hidden",
+            "mx-auto flex w-full min-w-0 flex-1 flex-col overflow-x-hidden",
             shellDisplayMode === "ticket-detail"
               ? "h-svh min-h-0 max-w-none gap-3 overflow-hidden px-3 py-3 sm:gap-4 sm:px-4 sm:py-4 lg:px-8"
               : isTicketsListPage
-                ? "max-w-500 min-h-0 gap-4 overflow-hidden p-4 sm:p-6 lg:p-8"
-                : "max-w-500 min-h-0 gap-4 overflow-y-auto p-4 sm:p-6 lg:p-8"
+                ? "min-h-0 max-w-500 gap-4 overflow-hidden p-4 sm:p-6 lg:p-8"
+                : "min-h-0 max-w-500 gap-4 overflow-y-auto p-4 sm:p-6 lg:p-8"
           )}
         >
           {children}

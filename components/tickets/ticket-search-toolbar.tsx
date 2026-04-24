@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -69,11 +70,9 @@ export function TicketSearchToolbar({
         />
       </div>
 
-      <div className="flex w-full items-center gap-2 max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden lg:w-auto lg:justify-end">
+      <div className="flex w-full items-center gap-2 max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:[scrollbar-width:none] lg:w-auto lg:justify-end max-sm:[&::-webkit-scrollbar]:hidden">
         {tableActions ? (
-          <div className="flex shrink-0 items-center gap-2">
-            {tableActions}
-          </div>
+          <div className="flex shrink-0 items-center gap-2">{tableActions}</div>
         ) : null}
 
         <div className="ml-auto flex shrink-0 items-center gap-2 max-sm:ml-0">
@@ -91,14 +90,16 @@ export function TicketSearchToolbar({
               {statusLabels[statusFilter]}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-40">
-              {statusItems.map((statusItem) => (
-                <DropdownMenuItem
-                  key={statusItem}
-                  onClick={() => onStatusFilterChange(statusItem)}
-                >
-                  {statusLabels[statusItem]}
-                </DropdownMenuItem>
-              ))}
+              <DropdownMenuGroup>
+                {statusItems.map((statusItem) => (
+                  <DropdownMenuItem
+                    key={statusItem}
+                    onClick={() => onStatusFilterChange(statusItem)}
+                  >
+                    {statusLabels[statusItem]}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
 

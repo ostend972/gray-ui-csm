@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
@@ -577,21 +578,23 @@ export function TicketTable({
                   <TicketStatusBadge status={ticket.queueStatus} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="min-w-40">
-                  <DropdownMenuRadioGroup
-                    value={ticket.queueStatus}
-                    onValueChange={(value) =>
-                      updateTicket(ticket.id, (currentTicket) => ({
-                        ...currentTicket,
-                        queueStatus: value as TicketQueueStatus,
-                      }))
-                    }
-                  >
-                    {queueStatusOptions.map((status) => (
-                      <DropdownMenuRadioItem key={status} value={status}>
-                        {statusLabel[status]}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
+                  <DropdownMenuGroup>
+                    <DropdownMenuRadioGroup
+                      value={ticket.queueStatus}
+                      onValueChange={(value) =>
+                        updateTicket(ticket.id, (currentTicket) => ({
+                          ...currentTicket,
+                          queueStatus: value as TicketQueueStatus,
+                        }))
+                      }
+                    >
+                      {queueStatusOptions.map((status) => (
+                        <DropdownMenuRadioItem key={status} value={status}>
+                          {statusLabel[status]}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             )
@@ -609,24 +612,26 @@ export function TicketTable({
                   </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="min-w-40">
-                  <DropdownMenuRadioGroup
-                    value={ticket.priority}
-                    onValueChange={(value) =>
-                      updateTicket(ticket.id, (currentTicket) => ({
-                        ...currentTicket,
-                        priority: value as TicketPriority,
-                      }))
-                    }
-                  >
-                    {priorityOptions.map((priority) => (
-                      <DropdownMenuRadioItem key={priority} value={priority}>
-                        <span className="inline-flex items-center gap-2">
-                          <TicketPriorityIndicator priority={priority} />
-                          <span className="capitalize">{priority}</span>
-                        </span>
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
+                  <DropdownMenuGroup>
+                    <DropdownMenuRadioGroup
+                      value={ticket.priority}
+                      onValueChange={(value) =>
+                        updateTicket(ticket.id, (currentTicket) => ({
+                          ...currentTicket,
+                          priority: value as TicketPriority,
+                        }))
+                      }
+                    >
+                      {priorityOptions.map((priority) => (
+                        <DropdownMenuRadioItem key={priority} value={priority}>
+                          <span className="inline-flex items-center gap-2">
+                            <TicketPriorityIndicator priority={priority} />
+                            <span className="capitalize">{priority}</span>
+                          </span>
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             )
@@ -641,33 +646,35 @@ export function TicketTable({
                   {getAssigneeDisplay(ticket)}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="min-w-48">
-                  <DropdownMenuRadioGroup
-                    value={ticket.assignee?.name ?? UNASSIGNED_VALUE}
-                    onValueChange={(value) =>
-                      updateTicket(ticket.id, (currentTicket) => ({
-                        ...currentTicket,
-                        assignee:
-                          value === UNASSIGNED_VALUE
-                            ? undefined
-                            : assigneeOptions.find(
-                                (assigneeOption) =>
-                                  assigneeOption.name === value
-                              ),
-                      }))
-                    }
-                  >
-                    <DropdownMenuRadioItem value={UNASSIGNED_VALUE}>
-                      Unassigned
-                    </DropdownMenuRadioItem>
-                    {assigneeOptions.map((assigneeOption) => (
-                      <DropdownMenuRadioItem
-                        key={assigneeOption.name}
-                        value={assigneeOption.name}
-                      >
-                        {assigneeOption.name}
+                  <DropdownMenuGroup>
+                    <DropdownMenuRadioGroup
+                      value={ticket.assignee?.name ?? UNASSIGNED_VALUE}
+                      onValueChange={(value) =>
+                        updateTicket(ticket.id, (currentTicket) => ({
+                          ...currentTicket,
+                          assignee:
+                            value === UNASSIGNED_VALUE
+                              ? undefined
+                              : assigneeOptions.find(
+                                  (assigneeOption) =>
+                                    assigneeOption.name === value
+                                ),
+                        }))
+                      }
+                    >
+                      <DropdownMenuRadioItem value={UNASSIGNED_VALUE}>
+                        Unassigned
                       </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
+                      {assigneeOptions.map((assigneeOption) => (
+                        <DropdownMenuRadioItem
+                          key={assigneeOption.name}
+                          value={assigneeOption.name}
+                        >
+                          {assigneeOption.name}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             )
@@ -682,21 +689,23 @@ export function TicketTable({
                   <span>{categoryLabel[ticket.category]}</span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="min-w-40">
-                  <DropdownMenuRadioGroup
-                    value={ticket.category}
-                    onValueChange={(value) =>
-                      updateTicket(ticket.id, (currentTicket) => ({
-                        ...currentTicket,
-                        category: value as TicketCategoryKey,
-                      }))
-                    }
-                  >
-                    {categoryOptions.map((category) => (
-                      <DropdownMenuRadioItem key={category} value={category}>
-                        {categoryLabel[category]}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
+                  <DropdownMenuGroup>
+                    <DropdownMenuRadioGroup
+                      value={ticket.category}
+                      onValueChange={(value) =>
+                        updateTicket(ticket.id, (currentTicket) => ({
+                          ...currentTicket,
+                          category: value as TicketCategoryKey,
+                        }))
+                      }
+                    >
+                      {categoryOptions.map((category) => (
+                        <DropdownMenuRadioItem key={category} value={category}>
+                          {categoryLabel[category]}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             )
@@ -711,21 +720,23 @@ export function TicketTable({
                   <TicketChannelCell channel={ticket.channel} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="min-w-40">
-                  <DropdownMenuRadioGroup
-                    value={ticket.channel}
-                    onValueChange={(value) =>
-                      updateTicket(ticket.id, (currentTicket) => ({
-                        ...currentTicket,
-                        channel: value as TicketChannel,
-                      }))
-                    }
-                  >
-                    {channelOptions.map((channel) => (
-                      <DropdownMenuRadioItem key={channel} value={channel}>
-                        <TicketChannelCell channel={channel} />
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
+                  <DropdownMenuGroup>
+                    <DropdownMenuRadioGroup
+                      value={ticket.channel}
+                      onValueChange={(value) =>
+                        updateTicket(ticket.id, (currentTicket) => ({
+                          ...currentTicket,
+                          channel: value as TicketChannel,
+                        }))
+                      }
+                    >
+                      {channelOptions.map((channel) => (
+                        <DropdownMenuRadioItem key={channel} value={channel}>
+                          <TicketChannelCell channel={channel} />
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             )
@@ -740,21 +751,23 @@ export function TicketTable({
                   <TicketTag tone={ticket.health} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="min-w-40">
-                  <DropdownMenuRadioGroup
-                    value={ticket.health}
-                    onValueChange={(value) =>
-                      updateTicket(ticket.id, (currentTicket) => ({
-                        ...currentTicket,
-                        health: value as TicketHealth,
-                      }))
-                    }
-                  >
-                    {healthOptions.map((health) => (
-                      <DropdownMenuRadioItem key={health} value={health}>
-                        {healthLabel[health]}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
+                  <DropdownMenuGroup>
+                    <DropdownMenuRadioGroup
+                      value={ticket.health}
+                      onValueChange={(value) =>
+                        updateTicket(ticket.id, (currentTicket) => ({
+                          ...currentTicket,
+                          health: value as TicketHealth,
+                        }))
+                      }
+                    >
+                      {healthOptions.map((health) => (
+                        <DropdownMenuRadioItem key={health} value={health}>
+                          {healthLabel[health]}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             )

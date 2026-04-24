@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -65,7 +66,7 @@ export function CustomerSearchToolbar({
         />
       </div>
 
-      <div className="flex w-full items-center gap-2 max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden lg:w-auto lg:justify-end">
+      <div className="flex w-full items-center gap-2 max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:[scrollbar-width:none] lg:w-auto lg:justify-end max-sm:[&::-webkit-scrollbar]:hidden">
         {tableActions ? (
           <div className="flex shrink-0 items-center gap-2">{tableActions}</div>
         ) : null}
@@ -85,14 +86,16 @@ export function CustomerSearchToolbar({
               {healthFilterLabels[healthFilter]}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-40">
-              {healthFilterOptions.map((option) => (
-                <DropdownMenuItem
-                  key={option}
-                  onClick={() => onHealthFilterChange(option)}
-                >
-                  {healthFilterLabels[option]}
-                </DropdownMenuItem>
-              ))}
+              <DropdownMenuGroup>
+                {healthFilterOptions.map((option) => (
+                  <DropdownMenuItem
+                    key={option}
+                    onClick={() => onHealthFilterChange(option)}
+                  >
+                    {healthFilterLabels[option]}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
 

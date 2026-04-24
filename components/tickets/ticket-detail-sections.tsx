@@ -47,7 +47,11 @@ import type {
   TicketTimelineEvent,
   TicketTimelineMessage,
 } from "@/lib/tickets/detail-data"
-import type { Ticket, TicketPerson, TicketQueueStatus } from "@/lib/tickets/types"
+import type {
+  Ticket,
+  TicketPerson,
+  TicketQueueStatus,
+} from "@/lib/tickets/types"
 import { cn } from "@/lib/utils"
 import { getInitials } from "./ticket-detail-helpers"
 
@@ -136,18 +140,28 @@ function TimelineMessageCard({ item }: { item: TicketTimelineMessage }) {
       <TimelineAvatar person={item.author} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="font-semibold text-foreground">{item.author.name}</span>
+          <span className="font-semibold text-foreground">
+            {item.author.name}
+          </span>
           <span className="text-muted-foreground">{item.timestamp}</span>
-          <Badge variant="outline" className="h-5 rounded-full px-2 text-[11px]">
+          <Badge
+            variant="outline"
+            className="h-5 rounded-full px-2 text-[11px]"
+          >
             {channelLabel[item.channel]}
           </Badge>
           {isOutbound ? (
-            <Badge variant="secondary" className="h-5 rounded-full px-2 text-[11px]">
+            <Badge
+              variant="secondary"
+              className="h-5 rounded-full px-2 text-[11px]"
+            >
               Reply
             </Badge>
           ) : null}
         </div>
-        <div className={cn("mt-2 text-sm leading-6 text-foreground")}>{item.body}</div>
+        <div className={cn("mt-2 text-sm leading-6 text-foreground")}>
+          {item.body}
+        </div>
       </div>
     </div>
   )
@@ -159,13 +173,20 @@ function NoteCard({ note }: { note: TicketNote }) {
       <TimelineAvatar person={note.author} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="font-semibold text-foreground">{note.author.name}</span>
+          <span className="font-semibold text-foreground">
+            {note.author.name}
+          </span>
           <span className="text-muted-foreground">{note.timestamp}</span>
-          <Badge variant="outline" className="h-5 rounded-full px-2 text-[11px]">
+          <Badge
+            variant="outline"
+            className="h-5 rounded-full px-2 text-[11px]"
+          >
             Internal
           </Badge>
         </div>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">{note.body}</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          {note.body}
+        </p>
       </div>
     </div>
   )
@@ -226,7 +247,10 @@ export function ConversationTabContent({
           <div className="min-w-0 flex-1 overflow-hidden rounded-3xl border bg-background shadow-sm">
             <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3 text-sm">
               <span className="text-muted-foreground">Via</span>
-              <Badge variant="secondary" className="h-8 rounded-full px-3 font-medium">
+              <Badge
+                variant="secondary"
+                className="h-8 rounded-full px-3 font-medium"
+              >
                 {channelLabel[ticket.channel]}
               </Badge>
               <span className="text-muted-foreground">From</span>
@@ -259,7 +283,9 @@ export function ConversationTabContent({
                           className="mb-2 rounded-xl border border-border/70 px-3 py-3"
                         >
                           <div className="min-w-0">
-                            <div className="truncate font-medium">{account.label}</div>
+                            <div className="truncate font-medium">
+                              {account.label}
+                            </div>
                             <div className="truncate text-xs text-muted-foreground">
                               {account.description}
                             </div>
@@ -269,9 +295,11 @@ export function ConversationTabContent({
                     </DropdownMenuRadioGroup>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onManageAccounts}>
-                    Manage accounts
-                  </DropdownMenuItem>
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={onManageAccounts}>
+                      Manage accounts
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -623,8 +651,14 @@ export function TicketDetailRightPanel({
                         </span>
                       }
                     />
-                    <DetailStat label="Health" value={<TicketTag tone={ticket.health} />} />
-                    <DetailStat label="Channel" value={channelLabel[ticket.channel]} />
+                    <DetailStat
+                      label="Health"
+                      value={<TicketTag tone={ticket.health} />}
+                    />
+                    <DetailStat
+                      label="Channel"
+                      value={channelLabel[ticket.channel]}
+                    />
                     <DetailStat label="Opened" value={detail.openedAt} />
                     <DetailStat
                       label="SLA"
@@ -648,7 +682,9 @@ export function TicketDetailRightPanel({
                         <div className="text-sm font-semibold text-foreground">
                           {detail.customer.name}
                         </div>
-                        <div className="text-sm text-muted-foreground">Requester</div>
+                        <div className="text-sm text-muted-foreground">
+                          Requester
+                        </div>
                       </div>
                     </div>
 
@@ -660,7 +696,9 @@ export function TicketDetailRightPanel({
                         <div className="text-sm font-semibold text-foreground">
                           {assignee.name}
                         </div>
-                        <div className="text-sm text-muted-foreground">Assignee</div>
+                        <div className="text-sm text-muted-foreground">
+                          Assignee
+                        </div>
                       </div>
                     </div>
 
@@ -675,8 +713,8 @@ export function TicketDetailRightPanel({
                           Support team
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Reply from {selectedReplyAccountLabel ?? "Support"} and
-                          keep the thread in sync.
+                          Reply from {selectedReplyAccountLabel ?? "Support"}{" "}
+                          and keep the thread in sync.
                         </div>
                       </div>
                     </div>
@@ -689,8 +727,8 @@ export function TicketDetailRightPanel({
                       Knowledge Base
                     </h3>
                     <p className="text-sm leading-6 text-muted-foreground">
-                      This module is prepared for linked playbooks, known issues,
-                      and ticket-specific references.
+                      This module is prepared for linked playbooks, known
+                      issues, and ticket-specific references.
                     </p>
                     <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
                       Connect KB sources here in the next iteration.

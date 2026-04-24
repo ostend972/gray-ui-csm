@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -67,7 +68,11 @@ export function CustomersPageHeader({
             <IconDownload className="size-4" />
             {customersPageSectionsCopy.export}
           </Button>
-          <Button size="sm" className="h-9 rounded-xl" onClick={onCreateCustomer}>
+          <Button
+            size="sm"
+            className="h-9 rounded-xl"
+            onClick={onCreateCustomer}
+          >
             <IconPlus className="size-4" />
             {customersPageSectionsCopy.newCustomer}
           </Button>
@@ -80,7 +85,10 @@ export function CustomersPageHeader({
             aria-controls="customer-metrics"
           >
             <IconChevronDown
-              className={cn("size-4 transition-transform", isStatsExpanded && "rotate-180")}
+              className={cn(
+                "size-4 transition-transform",
+                isStatsExpanded && "rotate-180"
+              )}
             />
             <span className="sr-only">
               {customersPageSectionsCopy.toggleCustomerMetrics}
@@ -109,7 +117,10 @@ export function CustomersPageHeader({
             aria-label={customersPageSectionsCopy.toggleCustomerMetrics}
           >
             <IconChevronDown
-              className={cn("size-4 transition-transform", isStatsExpanded && "rotate-180")}
+              className={cn(
+                "size-4 transition-transform",
+                isStatsExpanded && "rotate-180"
+              )}
             />
             <span className="sr-only">
               {customersPageSectionsCopy.toggleCustomerMetrics}
@@ -161,43 +172,49 @@ export function CustomersTableActions({
           {customerSortLabels[sortPreset]}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-44">
-          <DropdownMenuRadioGroup
-            value={sortPreset}
-            onValueChange={(value) =>
-              onSortPresetChange(value as CustomerSortPreset)
-            }
-          >
-            {customerSortOptions.map((option) => (
-              <DropdownMenuRadioItem key={option} value={option}>
-                {customerSortLabels[option]}
-              </DropdownMenuRadioItem>
-            ))}
-          </DropdownMenuRadioGroup>
+          <DropdownMenuGroup>
+            <DropdownMenuRadioGroup
+              value={sortPreset}
+              onValueChange={(value) =>
+                onSortPresetChange(value as CustomerSortPreset)
+              }
+            >
+              {customerSortOptions.map((option) => (
+                <DropdownMenuRadioItem key={option} value={option}>
+                  {customerSortLabels[option]}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button variant="outline" size="sm" className="h-9 rounded-xl" />}
+          render={
+            <Button variant="outline" size="sm" className="h-9 rounded-xl" />
+          }
         >
           {lifecycleFilter === "all"
             ? "All lifecycles"
             : customerLifecycleLabels[lifecycleFilter]}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-48">
-          <DropdownMenuItem onClick={() => onLifecycleFilterChange("all")}>
-            All lifecycles
-          </DropdownMenuItem>
-          {(Object.keys(customerLifecycleLabels) as CustomerLifecycle[]).map(
-            (lifecycle) => (
-              <DropdownMenuItem
-                key={lifecycle}
-                onClick={() => onLifecycleFilterChange(lifecycle)}
-              >
-                {customerLifecycleLabels[lifecycle]}
-              </DropdownMenuItem>
-            )
-          )}
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={() => onLifecycleFilterChange("all")}>
+              All lifecycles
+            </DropdownMenuItem>
+            {(Object.keys(customerLifecycleLabels) as CustomerLifecycle[]).map(
+              (lifecycle) => (
+                <DropdownMenuItem
+                  key={lifecycle}
+                  onClick={() => onLifecycleFilterChange(lifecycle)}
+                >
+                  {customerLifecycleLabels[lifecycle]}
+                </DropdownMenuItem>
+              )
+            )}
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -287,7 +304,7 @@ export function CustomersSelectionActionBar({
     >
       <div
         className={cn(
-          "pointer-events-auto flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-zinc-800/90 bg-zinc-950 px-1.5 py-1.5 text-zinc-100 shadow-xl ring-1 ring-black/20 transform-gpu will-change-[transform,opacity] dark:border-zinc-300/80 dark:bg-zinc-100 dark:text-zinc-900 dark:ring-white/25",
+          "pointer-events-auto flex w-fit max-w-full transform-gpu items-center gap-1 overflow-x-auto rounded-2xl border border-zinc-800/90 bg-zinc-950 px-1.5 py-1.5 text-zinc-100 shadow-xl ring-1 ring-black/20 will-change-[transform,opacity] dark:border-zinc-300/80 dark:bg-zinc-100 dark:text-zinc-900 dark:ring-white/25",
           "transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
           isVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
         )}
@@ -323,13 +340,28 @@ export function CustomersSelectionActionBar({
           ) : null}
         </div>
 
-        <Button variant="ghost" size="sm" className={buttonClass} onClick={onMarkHealthy}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className={buttonClass}
+          onClick={onMarkHealthy}
+        >
           {customersPageSectionsCopy.markHealthy}
         </Button>
-        <Button variant="ghost" size="sm" className={buttonClass} onClick={onMoveToWatch}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className={buttonClass}
+          onClick={onMoveToWatch}
+        >
           {customersPageSectionsCopy.moveToWatch}
         </Button>
-        <Button variant="ghost" size="sm" className={buttonClass} onClick={onArchive}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className={buttonClass}
+          onClick={onArchive}
+        >
           {customersPageSectionsCopy.archive}
         </Button>
         <Button
@@ -345,4 +377,3 @@ export function CustomersSelectionActionBar({
     </div>
   )
 }
-

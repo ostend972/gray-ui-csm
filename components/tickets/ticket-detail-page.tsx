@@ -29,13 +29,18 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { currentUser, replyFromAccounts } from "@/lib/current-user"
-import type { Ticket, TicketPerson, TicketQueueStatus } from "@/lib/tickets/types"
+import type {
+  Ticket,
+  TicketPerson,
+  TicketQueueStatus,
+} from "@/lib/tickets/types"
 import type {
   TicketDetail,
   TicketDetailTab,
@@ -277,7 +282,9 @@ export function TicketDetailPage({
 
   const handleDuplicateTask = (taskId: string) => {
     setTasks((currentTasks) => {
-      const index = currentTasks.findIndex((currentTask) => currentTask.id === taskId)
+      const index = currentTasks.findIndex(
+        (currentTask) => currentTask.id === taskId
+      )
       if (index < 0) return currentTasks
 
       const sourceTask = currentTasks[index]
@@ -348,15 +355,17 @@ export function TicketDetailPage({
               <IconDots className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-48">
-              <DropdownMenuItem onClick={() => updateTab("activity")}>
-                View activity log
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateTab("notes")}>
-                Open internal notes
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/tickets")}>
-                Back to ticket list
-              </DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => updateTab("activity")}>
+                  View activity log
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => updateTab("notes")}>
+                  Open internal notes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/tickets")}>
+                  Back to ticket list
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -384,15 +393,23 @@ export function TicketDetailPage({
                 <IconChevronDown className="size-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-52">
-                <DropdownMenuItem onClick={() => handleSubmitReply("pending")}>
-                  Submit as Pending
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleSubmitReply("resolved")}>
-                  Submit as Resolved
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleSubmitReply(undefined)}>
-                  Send reply only
-                </DropdownMenuItem>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => handleSubmitReply("pending")}
+                  >
+                    Submit as Pending
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleSubmitReply("resolved")}
+                  >
+                    Submit as Resolved
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleSubmitReply(undefined)}
+                  >
+                    Send reply only
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -428,10 +445,13 @@ export function TicketDetailPage({
             {ticket.subject}
           </h1>
 
-          <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground max-sm:[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden">
+          <div className="flex items-center gap-4 overflow-x-auto text-sm whitespace-nowrap text-muted-foreground max-sm:[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden">
             <div className="inline-flex items-center gap-2">
               <span>Channel</span>
-              <Badge variant="outline" className="h-5 rounded-full px-2 text-[11px]">
+              <Badge
+                variant="outline"
+                className="h-5 rounded-full px-2 text-[11px]"
+              >
                 {channelLabel[ticket.channel]}
               </Badge>
             </div>
@@ -455,7 +475,9 @@ export function TicketDetailPage({
             <Separator orientation="vertical" className="hidden h-4 sm:block" />
             <div className="inline-flex items-center gap-2">
               <span>Account</span>
-              <span className="font-medium text-foreground">{detail.accountName}</span>
+              <span className="font-medium text-foreground">
+                {detail.accountName}
+              </span>
             </div>
           </div>
         </div>

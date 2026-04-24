@@ -168,18 +168,20 @@ export function TicketsTableActions({
           {ticketSortLabels[sortPreset]}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-48">
-          <DropdownMenuRadioGroup
-            value={sortPreset}
-            onValueChange={(value) =>
-              onSortPresetChange(value as TicketSortPreset)
-            }
-          >
-            {ticketSortPresets.map((preset) => (
-              <DropdownMenuRadioItem key={preset} value={preset}>
-                {ticketSortLabels[preset]}
-              </DropdownMenuRadioItem>
-            ))}
-          </DropdownMenuRadioGroup>
+          <DropdownMenuGroup>
+            <DropdownMenuRadioGroup
+              value={sortPreset}
+              onValueChange={(value) =>
+                onSortPresetChange(value as TicketSortPreset)
+              }
+            >
+              {ticketSortPresets.map((preset) => (
+                <DropdownMenuRadioItem key={preset} value={preset}>
+                  {ticketSortLabels[preset]}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -287,11 +289,9 @@ export function TicketsSelectionActionBar({
     >
       <div
         className={cn(
-          "pointer-events-auto flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-zinc-800/90 bg-zinc-950 px-1.5 py-1.5 text-zinc-100 shadow-xl ring-1 ring-black/20 transform-gpu will-change-[transform,opacity] dark:border-zinc-300/80 dark:bg-zinc-100 dark:text-zinc-900 dark:ring-white/25",
+          "pointer-events-auto flex w-fit max-w-full transform-gpu items-center gap-1 overflow-x-auto rounded-2xl border border-zinc-800/90 bg-zinc-950 px-1.5 py-1.5 text-zinc-100 shadow-xl ring-1 ring-black/20 will-change-[transform,opacity] dark:border-zinc-300/80 dark:bg-zinc-100 dark:text-zinc-900 dark:ring-white/25",
           "transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-          isVisible
-            ? "translate-y-0 opacity-100"
-            : "translate-y-3 opacity-0"
+          isVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
         )}
       >
         <Button
@@ -339,13 +339,20 @@ export function TicketsSelectionActionBar({
             {ticketsPageSectionsCopy.changeStatus}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="top" className="min-w-40">
-            <DropdownMenuRadioGroup value="" onValueChange={(value) => onBulkStatusChange(value as TicketQueueStatus)}>
-              {bulkStatusOptions.map((status) => (
-                <DropdownMenuRadioItem key={status} value={status}>
-                  {bulkStatusLabel[status]}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
+            <DropdownMenuGroup>
+              <DropdownMenuRadioGroup
+                value=""
+                onValueChange={(value) =>
+                  onBulkStatusChange(value as TicketQueueStatus)
+                }
+              >
+                {bulkStatusOptions.map((status) => (
+                  <DropdownMenuRadioItem key={status} value={status}>
+                    {bulkStatusLabel[status]}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -363,17 +370,19 @@ export function TicketsSelectionActionBar({
             {ticketsPageSectionsCopy.assign}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="top" className="min-w-48">
-            <DropdownMenuItem onClick={() => onBulkAssigneeChange(undefined)}>
-              {ticketsPageSectionsCopy.unassigned}
-            </DropdownMenuItem>
-            {visibleAssigneeOptions.map((assignee) => (
-              <DropdownMenuItem
-                key={`assignee-${assignee.name}`}
-                onClick={() => onBulkAssigneeChange(assignee)}
-              >
-                {assignee.name}
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => onBulkAssigneeChange(undefined)}>
+                {ticketsPageSectionsCopy.unassigned}
               </DropdownMenuItem>
-            ))}
+              {visibleAssigneeOptions.map((assignee) => (
+                <DropdownMenuItem
+                  key={`assignee-${assignee.name}`}
+                  onClick={() => onBulkAssigneeChange(assignee)}
+                >
+                  {assignee.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -391,13 +400,20 @@ export function TicketsSelectionActionBar({
             {ticketsPageSectionsCopy.priority}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="top" className="min-w-44">
-            <DropdownMenuRadioGroup value="" onValueChange={(value) => onBulkPriorityChange(value as TicketPriority)}>
-              {bulkPriorityOptions.map((priority) => (
-                <DropdownMenuRadioItem key={priority} value={priority}>
-                  {formatPriorityLabel(priority)}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
+            <DropdownMenuGroup>
+              <DropdownMenuRadioGroup
+                value=""
+                onValueChange={(value) =>
+                  onBulkPriorityChange(value as TicketPriority)
+                }
+              >
+                {bulkPriorityOptions.map((priority) => (
+                  <DropdownMenuRadioItem key={priority} value={priority}>
+                    {formatPriorityLabel(priority)}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -418,8 +434,15 @@ export function TicketsSelectionActionBar({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="top" className="min-w-52">
             <DropdownMenuGroup>
-              <DropdownMenuLabel>{ticketsPageSectionsCopy.health}</DropdownMenuLabel>
-              <DropdownMenuRadioGroup value="" onValueChange={(value) => onBulkHealthChange(value as TicketHealth)}>
+              <DropdownMenuLabel>
+                {ticketsPageSectionsCopy.health}
+              </DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value=""
+                onValueChange={(value) =>
+                  onBulkHealthChange(value as TicketHealth)
+                }
+              >
                 {bulkHealthOptions.map((health) => (
                   <DropdownMenuRadioItem key={health} value={health}>
                     {bulkHealthLabel[health]}
@@ -430,8 +453,15 @@ export function TicketsSelectionActionBar({
 
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuLabel>{ticketsPageSectionsCopy.channel}</DropdownMenuLabel>
-              <DropdownMenuRadioGroup value="" onValueChange={(value) => onBulkChannelChange(value as TicketChannel)}>
+              <DropdownMenuLabel>
+                {ticketsPageSectionsCopy.channel}
+              </DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value=""
+                onValueChange={(value) =>
+                  onBulkChannelChange(value as TicketChannel)
+                }
+              >
                 {bulkChannelOptions.map((channel) => (
                   <DropdownMenuRadioItem key={channel} value={channel}>
                     {bulkChannelLabel[channel]}
@@ -442,7 +472,9 @@ export function TicketsSelectionActionBar({
 
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuLabel>{ticketsPageSectionsCopy.escalated}</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                {ticketsPageSectionsCopy.escalated}
+              </DropdownMenuLabel>
               <DropdownMenuRadioGroup
                 value=""
                 onValueChange={(value) => {
@@ -460,7 +492,9 @@ export function TicketsSelectionActionBar({
 
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuLabel>{ticketsPageSectionsCopy.pastDue}</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                {ticketsPageSectionsCopy.pastDue}
+              </DropdownMenuLabel>
               <DropdownMenuRadioGroup
                 value=""
                 onValueChange={(value) => {

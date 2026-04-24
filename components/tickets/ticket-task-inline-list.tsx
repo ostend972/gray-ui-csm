@@ -111,9 +111,14 @@ export function TicketTaskInlineList({
   }, [assigneeFilter, dueFilters, statusFilters, tasks])
 
   const isFiltering =
-    statusFilters.length > 0 || dueFilters.length > 0 || assigneeFilter !== "all"
+    statusFilters.length > 0 ||
+    dueFilters.length > 0 ||
+    assigneeFilter !== "all"
 
-  const toggleStatusFilter = (nextValue: TicketTaskStatus, checked: boolean) => {
+  const toggleStatusFilter = (
+    nextValue: TicketTaskStatus,
+    checked: boolean
+  ) => {
     setStatusFilters((currentFilters) => {
       if (checked) {
         if (currentFilters.includes(nextValue)) return currentFilters
@@ -124,7 +129,10 @@ export function TicketTaskInlineList({
     })
   }
 
-  const toggleDueFilter = (nextValue: TicketTaskDuePreset, checked: boolean) => {
+  const toggleDueFilter = (
+    nextValue: TicketTaskDuePreset,
+    checked: boolean
+  ) => {
     setDueFilters((currentFilters) => {
       if (checked) {
         if (currentFilters.includes(nextValue)) return currentFilters
@@ -188,7 +196,9 @@ export function TicketTaskInlineList({
                 <DropdownMenuSeparator />
 
                 <DropdownMenuGroup>
-                  <div className="px-3 py-2 text-xs text-muted-foreground">Status</div>
+                  <div className="px-3 py-2 text-xs text-muted-foreground">
+                    Status
+                  </div>
                   {ticketTaskStatusOptions.map((option) => (
                     <DropdownMenuCheckboxItem
                       key={option.value}
@@ -205,7 +215,9 @@ export function TicketTaskInlineList({
                 <DropdownMenuSeparator />
 
                 <DropdownMenuGroup>
-                  <div className="px-3 py-2 text-xs text-muted-foreground">Due</div>
+                  <div className="px-3 py-2 text-xs text-muted-foreground">
+                    Due
+                  </div>
                   {ticketTaskDueOptions.map((option) => (
                     <DropdownMenuCheckboxItem
                       key={option.value}
@@ -222,17 +234,24 @@ export function TicketTaskInlineList({
                 <DropdownMenuSeparator />
 
                 <DropdownMenuGroup>
-                  <div className="px-3 py-2 text-xs text-muted-foreground">Assignee</div>
+                  <div className="px-3 py-2 text-xs text-muted-foreground">
+                    Assignee
+                  </div>
                   <DropdownMenuRadioGroup
                     value={assigneeFilter}
                     onValueChange={(nextValue) => setAssigneeFilter(nextValue)}
                   >
-                    <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="all">
+                      All
+                    </DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="unassigned">
                       Unassigned
                     </DropdownMenuRadioItem>
                     {assigneeOptions.map((assignee) => (
-                      <DropdownMenuRadioItem key={assignee.name} value={assignee.name}>
+                      <DropdownMenuRadioItem
+                        key={assignee.name}
+                        value={assignee.name}
+                      >
                         {assignee.name}
                       </DropdownMenuRadioItem>
                     ))}
@@ -241,15 +260,17 @@ export function TicketTaskInlineList({
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem
-                  onClick={() => {
-                    setStatusFilters([])
-                    setDueFilters([])
-                    setAssigneeFilter("all")
-                  }}
-                >
-                  Clear all filters
-                </DropdownMenuItem>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setStatusFilters([])
+                      setDueFilters([])
+                      setAssigneeFilter("all")
+                    }}
+                  >
+                    Clear all filters
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -408,7 +429,7 @@ function TicketTaskInlineRow({
           type="button"
           variant="ghost"
           size="icon-sm"
-          className="size-8 cursor-grab hover:bg-transparent text-muted-foreground/50 active:cursor-grabbing"
+          className="size-8 cursor-grab text-muted-foreground/50 hover:bg-transparent active:cursor-grabbing"
           aria-label="Reorder task"
           disabled={isAnyTaskEditing}
           {...attributes}
@@ -420,7 +441,9 @@ function TicketTaskInlineRow({
         <Checkbox
           checked={isDone}
           onCheckedChange={() => onToggle()}
-          aria-label={isDone ? `Mark ${task.title} as open` : `Mark ${task.title} as done`}
+          aria-label={
+            isDone ? `Mark ${task.title} as open` : `Mark ${task.title} as done`
+          }
           className="rounded-full"
         />
 
@@ -441,7 +464,7 @@ function TicketTaskInlineRow({
                   onCancelEdit()
                 }
               }}
-              className="h-8 rounded-lg text-base border-none ring-0 bg-transparent transition-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus:px-0 focus:bg-transparent focus:shadow-none"
+              className="h-8 rounded-lg border-none bg-transparent text-base ring-0 transition-none focus:bg-transparent focus:px-0 focus:shadow-none focus:ring-0 focus:outline-none focus-visible:ring-0"
               aria-label="Edit task title"
               autoFocus
             />
@@ -476,22 +499,26 @@ function TicketTaskInlineRow({
               {ticketTaskStatusLabel[task.status]}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-40">
-              <div className="px-3 py-2 text-xs text-muted-foreground">Set status</div>
-              <DropdownMenuRadioGroup
-                value={task.status}
-                onValueChange={(nextValue) =>
-                  onStatusChange(nextValue as TicketTaskStatus)
-                }
-              >
-                {ticketTaskStatusOptions.map((statusOption) => (
-                  <DropdownMenuRadioItem
-                    key={statusOption.value}
-                    value={statusOption.value}
-                  >
-                    {statusOption.label}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
+              <DropdownMenuGroup>
+                <div className="px-3 py-2 text-xs text-muted-foreground">
+                  Set status
+                </div>
+                <DropdownMenuRadioGroup
+                  value={task.status}
+                  onValueChange={(nextValue) =>
+                    onStatusChange(nextValue as TicketTaskStatus)
+                  }
+                >
+                  {ticketTaskStatusOptions.map((statusOption) => (
+                    <DropdownMenuRadioItem
+                      key={statusOption.value}
+                      value={statusOption.value}
+                    >
+                      {statusOption.label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -510,21 +537,26 @@ function TicketTaskInlineRow({
               {ticketTaskDueLabel[task.due]}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-40">
-              <div className="px-3 py-2 text-xs text-muted-foreground">
-                Set due date
-              </div>
-              <DropdownMenuRadioGroup
-                value={task.due}
-                onValueChange={(nextValue) =>
-                  onDueChange(nextValue as TicketTaskDuePreset)
-                }
-              >
-                {ticketTaskDueOptions.map((dueOption) => (
-                  <DropdownMenuRadioItem key={dueOption.value} value={dueOption.value}>
-                    {dueOption.label}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
+              <DropdownMenuGroup>
+                <div className="px-3 py-2 text-xs text-muted-foreground">
+                  Set due date
+                </div>
+                <DropdownMenuRadioGroup
+                  value={task.due}
+                  onValueChange={(nextValue) =>
+                    onDueChange(nextValue as TicketTaskDuePreset)
+                  }
+                >
+                  {ticketTaskDueOptions.map((dueOption) => (
+                    <DropdownMenuRadioItem
+                      key={dueOption.value}
+                      value={dueOption.value}
+                    >
+                      {dueOption.label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -542,43 +574,52 @@ function TicketTaskInlineRow({
             >
               <Avatar className="size-6">
                 {task.assignee?.avatarUrl ? (
-                  <AvatarImage src={task.assignee.avatarUrl} alt={task.assignee.name} />
+                  <AvatarImage
+                    src={task.assignee.avatarUrl}
+                    alt={task.assignee.name}
+                  />
                 ) : null}
                 <AvatarFallback className="text-[10px]">
-                  {task.assignee?.name
-                    ? task.assignee.name.charAt(0).toUpperCase()
-                    : <IconUser className="size-3.5" />}
+                  {task.assignee?.name ? (
+                    task.assignee.name.charAt(0).toUpperCase()
+                  ) : (
+                    <IconUser className="size-3.5" />
+                  )}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-44">
-              <div className="px-3 py-2 text-xs text-muted-foreground">Assign task</div>
-              <DropdownMenuRadioGroup
-                value={task.assignee?.name ?? "unassigned"}
-                onValueChange={(nextValue) => {
-                  if (nextValue === "unassigned") {
-                    onAssigneeChange(undefined)
-                    return
-                  }
+              <DropdownMenuGroup>
+                <div className="px-3 py-2 text-xs text-muted-foreground">
+                  Assign task
+                </div>
+                <DropdownMenuRadioGroup
+                  value={task.assignee?.name ?? "unassigned"}
+                  onValueChange={(nextValue) => {
+                    if (nextValue === "unassigned") {
+                      onAssigneeChange(undefined)
+                      return
+                    }
 
-                  const selected = assigneeOptions.find(
-                    (assigneeOption) => assigneeOption.name === nextValue
-                  )
-                  onAssigneeChange(selected)
-                }}
-              >
-                <DropdownMenuRadioItem value="unassigned">
-                  Unassigned
-                </DropdownMenuRadioItem>
-                {assigneeOptions.map((assigneeOption) => (
-                  <DropdownMenuRadioItem
-                    key={assigneeOption.name}
-                    value={assigneeOption.name}
-                  >
-                    {assigneeOption.name}
+                    const selected = assigneeOptions.find(
+                      (assigneeOption) => assigneeOption.name === nextValue
+                    )
+                    onAssigneeChange(selected)
+                  }}
+                >
+                  <DropdownMenuRadioItem value="unassigned">
+                    Unassigned
                   </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
+                  {assigneeOptions.map((assigneeOption) => (
+                    <DropdownMenuRadioItem
+                      key={assigneeOption.name}
+                      value={assigneeOption.name}
+                    >
+                      {assigneeOption.name}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -597,12 +638,20 @@ function TicketTaskInlineRow({
               <IconDotsVertical className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-44">
-              <DropdownMenuItem onClick={onStartEdit}>Edit title</DropdownMenuItem>
-              <DropdownMenuItem onClick={onDuplicate}>Duplicate</DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={onStartEdit}>
+                  Edit title
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onDuplicate}>
+                  Duplicate
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onClick={onDelete}>
-                Delete
-              </DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuItem variant="destructive" onClick={onDelete}>
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
