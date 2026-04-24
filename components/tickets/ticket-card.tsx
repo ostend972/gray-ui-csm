@@ -5,6 +5,7 @@ import { TicketTag } from "@/components/tickets/ticket-tag"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import { currentUser } from "@/lib/current-user"
+import { getTicketInitials } from "@/lib/tickets/presentation"
 import type { Ticket } from "@/lib/tickets/types"
 import { cn } from "@/lib/utils"
 
@@ -33,12 +34,7 @@ export function TicketCard({
   isRecentlyMoved,
   onClick,
 }: TicketCardProps) {
-  const initials = ticket.assignee?.name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
+  const initials = getTicketInitials(ticket.assignee?.name)
   const avatarUrl = ticket.mine
     ? currentUser.avatar
     : ticket.assignee?.avatarUrl
@@ -75,9 +71,7 @@ export function TicketCard({
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} alt={ticket.assignee?.name ?? "Assignee"} />
             ) : null}
-            <AvatarFallback className="text-xs">
-              {initials || "--"}
-            </AvatarFallback>
+            <AvatarFallback className="text-xs">{initials}</AvatarFallback>
           </Avatar>
           <TicketTag tone={ticket.health} />
         </div>

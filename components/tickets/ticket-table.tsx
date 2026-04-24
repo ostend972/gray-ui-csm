@@ -39,6 +39,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { currentUser } from "@/lib/current-user"
 import { useIsMobile } from "@/hooks/use-mobile"
+import {
+  getTicketInitials,
+  ticketChannelLabel as channelLabel,
+  ticketHealthLabel as healthLabel,
+  ticketStatusLabel as statusLabel,
+  ticketStatusToneClassName as statusToneClassName,
+} from "@/lib/tickets/presentation"
 import type {
   Ticket,
   TicketCategoryKey,
@@ -85,41 +92,12 @@ export type TicketSortPreset =
 const numberFormatter = new Intl.NumberFormat("en-US")
 const UNASSIGNED_VALUE = "__unassigned__"
 
-const statusLabel: Record<TicketQueueStatus, string> = {
-  open: "Open",
-  pending: "Pending",
-  resolved: "Resolved",
-  closed: "Closed",
-}
-
-const statusToneClassName: Record<TicketQueueStatus, string> = {
-  open: "border-sky-200 bg-sky-100 text-sky-800 dark:border-sky-900/60 dark:bg-sky-950/60 dark:text-sky-300",
-  pending:
-    "border-amber-200 bg-amber-100 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/60 dark:text-amber-300",
-  resolved:
-    "border-emerald-200 bg-emerald-100 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/60 dark:text-emerald-300",
-  closed:
-    "border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200",
-}
-
 const categoryLabel: Record<TicketCategoryKey, string> = {
   billing: "Billing",
   technical: "Technical",
   "account-login": "Access",
   subscription: "Subscription",
   other: "Other",
-}
-
-const channelLabel: Record<TicketChannel, string> = {
-  email: "Email",
-  chat: "Chat",
-  slack: "Slack",
-}
-
-const healthLabel: Record<TicketHealth, string> = {
-  "on-track": "On track",
-  warning: "Warning",
-  breached: "Breached",
 }
 
 const priorityWeight: Record<TicketPriority, number> = {
@@ -237,19 +215,6 @@ const mobileColumnIds: TicketColumnId[] = [
   "priority",
 ]
 
-function getTicketInitials(ticket: Ticket) {
-  const name = ticket.assignee?.name
-
-  if (!name) return "--"
-
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-}
-
 function getTicketAvatarUrl(ticket: Ticket) {
   if (ticket.mine) return currentUser.avatar
   return ticket.assignee?.avatarUrl
@@ -278,7 +243,7 @@ function getAssigneeDisplay(ticket: Ticket) {
     <span className="inline-flex min-w-0 items-center gap-2">
       <Avatar className="size-6 border bg-background" size="sm">
         <AvatarImage src={getTicketAvatarUrl(ticket)} alt={assigneeName} />
-        <AvatarFallback>{getTicketInitials(ticket)}</AvatarFallback>
+        <AvatarFallback>{getTicketInitials(ticket.assignee?.name)}</AvatarFallback>
       </Avatar>
       <span className="truncate">{assigneeName}</span>
     </span>

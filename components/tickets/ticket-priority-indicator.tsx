@@ -4,7 +4,9 @@ import {
   IconCircleDashed,
   IconMinus,
 } from "@tabler/icons-react"
+import type { ComponentType } from "react"
 
+import { ticketPriorityIndicatorToneClassName } from "@/lib/tickets/presentation"
 import { cn } from "@/lib/utils"
 import type { TicketPriority } from "@/lib/tickets/types"
 
@@ -15,33 +17,29 @@ type TicketPriorityIndicatorProps = {
 
 type PriorityVisualConfig = {
   label: string
-  icon: React.ReactNode
+  icon: ComponentType<{ className?: string }>
 }
 
 const PRIORITY_VISUAL: Record<TicketPriority, PriorityVisualConfig> = {
   urgent: {
     label: "Urgent",
-    icon: <IconArrowUp className="size-4 text-red-600 dark:text-red-400" />,
+    icon: IconArrowUp,
   },
   high: {
     label: "High",
-    icon: (
-      <IconArrowUp className="size-4 text-orange-600 dark:text-orange-400" />
-    ),
+    icon: IconArrowUp,
   },
   medium: {
     label: "Normal",
-    icon: <IconMinus className="size-4 text-sky-600 dark:text-sky-400" />,
+    icon: IconMinus,
   },
   low: {
     label: "Low",
-    icon: <IconArrowDown className="size-4 text-zinc-500 dark:text-zinc-400" />,
+    icon: IconArrowDown,
   },
   todo: {
     label: "Todo",
-    icon: (
-      <IconCircleDashed className="size-4 text-zinc-400 dark:text-zinc-500" />
-    ),
+    icon: IconCircleDashed,
   },
 }
 
@@ -50,6 +48,7 @@ export function TicketPriorityIndicator({
   className,
 }: TicketPriorityIndicatorProps) {
   const visual = PRIORITY_VISUAL[priority]
+  const Icon = visual.icon
 
   return (
     <span
@@ -57,7 +56,9 @@ export function TicketPriorityIndicator({
       title={`${visual.label} priority`}
       aria-label={`${visual.label} priority`}
     >
-      {visual.icon}
+      <Icon
+        className={cn("size-4", ticketPriorityIndicatorToneClassName[priority])}
+      />
     </span>
   )
 }

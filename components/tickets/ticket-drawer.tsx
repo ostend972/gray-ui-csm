@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { currentUser, replyFromAccounts } from "@/lib/current-user"
+import { getTicketInitials } from "@/lib/tickets/presentation"
 import type {
   Ticket,
   TicketAssignee,
@@ -151,17 +152,6 @@ function normalizePriority(priority: TicketPriority) {
   return priority
 }
 
-function getInitials(name?: string) {
-  if (!name) return "--"
-
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-}
-
 function getDrawerMotionStyle(origin?: TicketDrawerOrigin | null) {
   if (!origin || typeof window === "undefined") return undefined
 
@@ -242,7 +232,7 @@ function PersonAvatar({
         <AvatarImage src={person.avatarUrl} alt={person.name} />
       ) : null}
       <AvatarFallback className={fallbackClassName}>
-        {getInitials(person?.name)}
+        {getTicketInitials(person?.name)}
       </AvatarFallback>
     </Avatar>
   )
