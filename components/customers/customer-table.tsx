@@ -305,9 +305,20 @@ export function CustomersTable({
         getDrawerCellValue={(customer, columnId) =>
           renderStaticCustomerCell(customer, columnId)
         }
-        renderDrawerPanel={({ drawerRow, closeDrawer }) => (
+        renderDrawerPanel={({
+          drawerRow,
+          drawerRowIndex,
+          drawerRowCount,
+          openPreviousRow,
+          openNextRow,
+          closeDrawer,
+        }) => (
           <CustomerPreviewDrawerContent
             customer={drawerRow}
+            currentIndex={drawerRowIndex}
+            totalCount={drawerRowCount}
+            onPrevious={openPreviousRow}
+            onNext={openNextRow}
             onClose={closeDrawer}
           />
         )}
@@ -348,6 +359,7 @@ export function CustomersTable({
         }}
         stickySummaryFooter
         fillAvailableHeight
+        disablePointerDismissal={false}
         tableContainerClassName="h-full"
       />
     </div>

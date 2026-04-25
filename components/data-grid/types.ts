@@ -20,12 +20,16 @@ export type DataGridColumn<ColumnId extends string> = {
 
 export type DataGridDrawerPanelProps<Row, ColumnId extends string> = {
   drawerRow: Row | null
+  drawerRowIndex: number
+  drawerRowCount: number
   drawerColumn: DataGridColumn<ColumnId> | null
   drawerCellValue: React.ReactNode
   getRowLabel: (row: Row) => string
   isEditableColumn: (columnId: ColumnId) => boolean
   isEmptyValue: (value: React.ReactNode) => boolean
   updateRow: (rowId: string, updater: (row: Row) => Row) => void
+  openPreviousRow: () => void
+  openNextRow: () => void
   closeDrawer: () => void
 }
 

@@ -2,6 +2,7 @@ import type {
   CustomerActivityTone,
   CustomerHealth,
   CustomerLifecycle,
+  CustomerPlan,
   CustomerResponseTone,
   CustomerTicketPriority,
   CustomerTicketStatus,
@@ -60,13 +61,38 @@ export const customerTicketPriorityToneClassName: Record<
   low: "bg-zinc-100 text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300",
 }
 
+export const customerTicketPriorityDotClassName: Record<
+  CustomerTicketPriority,
+  string
+> = {
+  high: "bg-destructive",
+  medium: "bg-chart-3",
+  low: "bg-primary",
+}
+
+export const customerTierToneClassName: Record<"default" | "vip", string> = {
+  default: "bg-secondary text-secondary-foreground",
+  vip: "bg-chart-3/20 text-chart-5 dark:bg-chart-3/25 dark:text-chart-3",
+}
+
+export const customerPresenceDotClassName = "bg-chart-2"
+
+export const customerPositiveTrendBadgeClassName =
+  "border-0 bg-chart-2/20 text-chart-5 dark:bg-chart-2/25 dark:text-chart-2"
+
+export const CUSTOMER_VIP_ANNUAL_VALUE_THRESHOLD = 150_000
+
+export function isVipCustomerTier(plan: CustomerPlan, annualValue: number) {
+  return plan === "Enterprise" || annualValue >= CUSTOMER_VIP_ANNUAL_VALUE_THRESHOLD
+}
+
 export const customerActivityToneDotClassName: Record<
   CustomerActivityTone,
   string
 > = {
-  positive: "bg-emerald-500",
-  warning: "bg-amber-500",
-  neutral: "bg-sky-500",
+  positive: "bg-chart-2",
+  warning: "bg-chart-3",
+  neutral: "bg-primary",
 }
 
 export function getCustomerInitials(value: string) {

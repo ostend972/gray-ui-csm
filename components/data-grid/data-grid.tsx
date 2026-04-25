@@ -104,6 +104,11 @@ export function DataGrid<Row extends DataGridRowBase, ColumnId extends string>({
     return rows.find((row) => row.id === drawerCell.rowId) ?? null
   }, [drawerCell, rows])
 
+  const drawerRowIndex = React.useMemo(() => {
+    if (!drawerRow) return -1
+    return rows.findIndex((row) => row.id === drawerRow.id)
+  }, [drawerRow, rows])
+
   const drawerColumn = React.useMemo(() => {
     if (!drawerCell) return null
     return columns.find((column) => column.id === drawerCell.columnId) ?? null
@@ -192,14 +197,41 @@ export function DataGrid<Row extends DataGridRowBase, ColumnId extends string>({
     [commitRows]
   )
 
+  const openDrawerRowAt = React.useCallback(
+    (rowIndex: number) => {
+      if (!drawerCell) return
+
+      const nextRow = rows[rowIndex]
+      if (!nextRow) return
+
+      setDrawerCell({
+        rowId: nextRow.id,
+        columnId: drawerCell.columnId,
+      })
+    },
+    [drawerCell, rows]
+  )
+
+  const openPreviousRow = React.useCallback(() => {
+    openDrawerRowAt(drawerRowIndex - 1)
+  }, [drawerRowIndex, openDrawerRowAt])
+
+  const openNextRow = React.useCallback(() => {
+    openDrawerRowAt(drawerRowIndex + 1)
+  }, [drawerRowIndex, openDrawerRowAt])
+
   const drawerPanelProps: DataGridDrawerPanelProps<Row, ColumnId> = {
     drawerRow,
+    drawerRowIndex,
+    drawerRowCount: rows.length,
     drawerColumn,
     drawerCellValue,
     getRowLabel,
     isEditableColumn,
     isEmptyValue,
     updateRow,
+    openPreviousRow,
+    openNextRow,
     closeDrawer,
   }
 

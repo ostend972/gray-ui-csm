@@ -15,14 +15,20 @@ type CustomerCardGridProps = {
 }
 
 export function CustomerCardGrid({ customers }: CustomerCardGridProps) {
-  const [selectedCustomer, setSelectedCustomer] =
-    React.useState<Customer | null>(null)
+  const [selectedCustomerId, setSelectedCustomerId] = React.useState<
+    string | null
+  >(null)
+  const selectedCustomerIndex = selectedCustomerId
+    ? customers.findIndex((customer) => customer.id === selectedCustomerId)
+    : -1
+  const selectedCustomer =
+    selectedCustomerIndex >= 0 ? customers[selectedCustomerIndex] : null
 
   return (
     <Sheet
       open={selectedCustomer !== null}
       onOpenChange={(open) => {
-        if (!open) setSelectedCustomer(null)
+        if (!open) setSelectedCustomerId(null)
       }}
     >
       <div className="h-full min-h-0 overflow-y-auto">
@@ -38,7 +44,7 @@ export function CustomerCardGrid({ customers }: CustomerCardGridProps) {
               <article
                 key={customer.id}
                 className="cursor-pointer rounded-xl border bg-card p-4 transition-colors hover:bg-muted/20"
-                onClick={() => setSelectedCustomer(customer)}
+                onClick={() => setSelectedCustomerId(customer.id)}
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <CustomerInitialAvatar
@@ -84,7 +90,17 @@ export function CustomerCardGrid({ customers }: CustomerCardGridProps) {
 
       <CustomerPreviewDrawerContent
         customer={selectedCustomer}
-        onClose={() => setSelectedCustomer(null)}
+        currentIndex={selectedCustomerIndex}
+        totalCount={customers.length}
+        onPrevious={() => {
+          const previousCustomer = customers[selectedCustomerIndex - 1]
+          if (previousCustomer) setSelectedCustomerId(previousCustomer.id)
+        }}
+        onNext={() => {
+          const nextCustomer = customers[selectedCustomerIndex + 1]
+          if (nextCustomer) setSelectedCustomerId(nextCustomer.id)
+        }}
+        onClose={() => setSelectedCustomerId(null)}
       />
     </Sheet>
   )

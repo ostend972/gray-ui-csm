@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar"
 import { getCustomerInitials } from "@/lib/customers/presentation"
 import { cn } from "@/lib/utils"
 
@@ -8,6 +8,7 @@ type CustomerInitialAvatarProps = {
   name: string
   size?: CustomerInitialAvatarSize
   className?: string
+  badgeClassName?: string
 }
 
 const avatarSizeClassName: Record<CustomerInitialAvatarSize, string> = {
@@ -26,6 +27,7 @@ export function CustomerInitialAvatar({
   name,
   size = "md",
   className,
+  badgeClassName,
 }: CustomerInitialAvatarProps) {
   return (
     <Avatar
@@ -45,6 +47,9 @@ export function CustomerInitialAvatar({
       >
         {getCustomerInitials(name)}
       </AvatarFallback>
+      {badgeClassName ? (
+        <AvatarBadge className={badgeClassName} aria-hidden="true" />
+      ) : null}
     </Avatar>
   )
 }
