@@ -41,6 +41,29 @@ export type CustomerRecentTicket = {
   requestDate: string
 }
 
+export type CustomerActivityEvent = {
+  id: string
+  message: string
+  timestampLabel: string
+  tone: CustomerActivityTone
+}
+
+export type CustomerCompanyProfile = {
+  companyDisplayName: string
+  contactsCount: number
+  tier: string
+  accountManager: string
+  renewalDate: string
+  revenue: number
+}
+
+export type CustomerDrawerSectionState = {
+  tickets: boolean
+  activity: boolean
+  notes: boolean
+  companyExpanded: boolean
+}
+
 export type Customer = {
   id: string
   companyName: string
@@ -73,6 +96,8 @@ export type Customer = {
   productAreas: string[]
   riskSignals: string[]
   recentTickets: CustomerRecentTicket[]
+  activityEvents: CustomerActivityEvent[]
+  companyProfile: CustomerCompanyProfile
 }
 
 export interface CustomerSidebarItem {

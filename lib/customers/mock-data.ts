@@ -1,5 +1,6 @@
 import { currentUser } from "@/lib/current-user"
 import type {
+  CustomerActivityEvent,
   Customer,
   CustomerRecentTicket,
   CustomerLifecycle,
@@ -18,6 +19,8 @@ type RawCustomer = Omit<
   | "timezone"
   | "firstContactDate"
   | "recentTickets"
+  | "activityEvents"
+  | "companyProfile"
 > & {
   recentTickets: Omit<CustomerRecentTicket, "assigneeLabel" | "requestDate">[]
 }
@@ -109,6 +112,49 @@ const regionMetadata: Record<
   },
 }
 
+const monthLabels = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const
+
+function getTextSeed(value: string) {
+  return value.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0)
+}
+
+function formatEventTimestamp(date: string, seed: number) {
+  const [monthRaw, dayRaw, yearRaw] = date.split("/")
+  const month = Number(monthRaw)
+  const day = Number(dayRaw)
+  const year = Number(yearRaw)
+
+  if (
+    !Number.isFinite(month) ||
+    !Number.isFinite(day) ||
+    !Number.isFinite(year) ||
+    month <= 0 ||
+    month > 12
+  ) {
+    return date
+  }
+
+  const hour24 = 8 + (seed % 10)
+  const minute = (seed * 7) % 60
+  const hour12 = hour24 % 12 || 12
+  const meridiem = hour24 >= 12 ? "PM" : "AM"
+
+  return `${hour12}:${String(minute).padStart(2, "0")} ${meridiem} · ${monthLabels[month - 1]} ${day}, ${year}`
+}
+
 function buildPhoneNumber(customerId: string) {
   const seed = customerId
     .split("")
@@ -156,12 +202,94 @@ function buildTicketMetadata(
   }
 }
 
+function buildCompanyProfile(customer: RawCustomer) {
+  const contactsCount = Math.max(
+    3,
+    Math.round(
+      customer.seats /
+        (customer.plan === "Enterprise" || customer.segment === "Enterprise"
+          ? 18
+          : 12)
+    )
+  )
+  const renewalSeed = getTextSeed(customer.id) + customer.seats
+  const renewalMonth = (renewalSeed % 12) + 1
+  const renewalDay = (renewalSeed % 26) + 1
+
+  return {
+    companyDisplayName: customer.companyName,
+    contactsCount,
+    tier: customer.plan === "Enterprise" ? "Enterprise" : customer.segment,
+    accountManager: customer.owner.name,
+    renewalDate: `${monthLabels[renewalMonth - 1]} ${renewalDay}, 2026`,
+    revenue: customer.annualValue,
+  }
+}
+
+function buildActivityEvents(
+  customer: RawCustomer,
+  tickets: CustomerRecentTicket[],
+  firstContactDate: string
+): CustomerActivityEvent[] {
+  const events: CustomerActivityEvent[] = [
+    {
+      id: `${customer.id}-contact-added`,
+      message: `${customer.primaryContactName} added to contacts`,
+      timestampLabel: formatEventTimestamp(
+        firstContactDate,
+        getTextSeed(customer.primaryContactName)
+      ),
+      tone: "positive",
+    },
+  ]
+
+  for (const ticket of tickets.slice(0, 3)) {
+    const actionLabel =
+      ticket.status === "resolved"
+        ? "resolved"
+        : ticket.status === "pending"
+          ? "updated"
+          : "opened"
+
+    events.push({
+      id: `${customer.id}-${ticket.id}-activity`,
+      message: `Ticket #${ticket.id} ${actionLabel}`,
+      timestampLabel: formatEventTimestamp(
+        ticket.requestDate,
+        getTextSeed(ticket.id)
+      ),
+      tone:
+        ticket.status === "resolved"
+          ? "positive"
+          : ticket.priority === "high"
+            ? "warning"
+            : "neutral",
+    })
+  }
+
+  events.push({
+    id: `${customer.id}-created`,
+    message: `${customer.primaryContactName} created by ${customer.owner.name}`,
+    timestampLabel: formatEventTimestamp(
+      firstContactDate,
+      getTextSeed(customer.owner.name)
+    ),
+    tone: "neutral",
+  })
+
+  return events
+}
+
 function enrichCustomer(customer: RawCustomer): Customer {
   const region = regionMetadata[customer.region] ?? {
     languagesSpoken: ["English"],
     timezone: "UTC+00:00",
     source: "Customer success portfolio",
   }
+  const firstContactDate = buildFirstContactDate(customer)
+  const recentTickets = customer.recentTickets.map((ticket) =>
+    buildTicketMetadata(ticket, customer.owner.name)
+  )
 
   return {
     ...customer,
@@ -173,10 +301,10 @@ function enrichCustomer(customer: RawCustomer): Customer {
     responseTimeLabel: buildResponseTimeLabel(customer),
     languagesSpoken: region.languagesSpoken,
     timezone: region.timezone,
-    firstContactDate: buildFirstContactDate(customer),
-    recentTickets: customer.recentTickets.map((ticket) =>
-      buildTicketMetadata(ticket, customer.owner.name)
-    ),
+    firstContactDate,
+    recentTickets,
+    companyProfile: buildCompanyProfile(customer),
+    activityEvents: buildActivityEvents(customer, recentTickets, firstContactDate),
   }
 }
 

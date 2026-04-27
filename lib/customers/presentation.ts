@@ -80,6 +80,17 @@ export const customerPresenceDotClassName = "bg-chart-2"
 export const customerPositiveTrendBadgeClassName =
   "border-0 bg-chart-2/20 text-chart-5 dark:bg-chart-2/25 dark:text-chart-2"
 
+export const customerActivityToneSurfaceClassName: Record<
+  CustomerActivityTone,
+  string
+> = {
+  positive:
+    "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
+  warning:
+    "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300",
+  neutral: "border-border bg-background text-foreground",
+}
+
 export const CUSTOMER_VIP_ANNUAL_VALUE_THRESHOLD = 150_000
 
 export function isVipCustomerTier(plan: CustomerPlan, annualValue: number) {

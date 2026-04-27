@@ -13,6 +13,10 @@ import {
   CustomerCardGrid,
 } from "@/components/customers/customer-card-grid"
 import {
+  CustomerDrawer,
+  type CustomerDrawerTriggerContext,
+} from "@/components/customers/customer-drawer"
+import {
   CustomersTable,
   type CustomerColumnId,
 } from "@/components/customers/customer-table"
@@ -155,6 +159,8 @@ export function CustomersPage({
   const [isStatsExpanded, setIsStatsExpanded] = useState(false)
   const [tableToolbarProps, setTableToolbarProps] =
     useState<DataGridToolbarRenderProps<CustomerColumnId> | null>(null)
+  const [drawerTriggerContext, setDrawerTriggerContext] =
+    useState<CustomerDrawerTriggerContext | null>(null)
 
   const pageContentRef = useRef<HTMLDivElement | null>(null)
   const [pageContentOverlayStyle, setPageContentOverlayStyle] =
@@ -271,6 +277,17 @@ export function CustomersPage({
     return stats
   }, [filteredCustomers])
 
+  const drawerCustomerIndex = useMemo(() => {
+    if (!drawerTriggerContext) return -1
+
+    return filteredCustomers.findIndex(
+      (customer) => customer.id === drawerTriggerContext.customerId
+    )
+  }, [drawerTriggerContext, filteredCustomers])
+
+  const drawerCustomer =
+    drawerCustomerIndex >= 0 ? filteredCustomers[drawerCustomerIndex] : null
+
   const updateOverlayBounds = useCallback(() => {
     const pageContent = pageContentRef.current
     if (!pageContent) return
@@ -365,6 +382,37 @@ export function CustomersPage({
     [layoutMode, tableToolbarProps]
   )
 
+  const openCustomerDrawer = useCallback(
+    (context: CustomerDrawerTriggerContext) => {
+      setDrawerTriggerContext(context)
+    },
+    []
+  )
+
+  const closeCustomerDrawer = useCallback(() => {
+    setDrawerTriggerContext(null)
+  }, [])
+
+  const openCustomerDrawerAtIndex = useCallback(
+    (nextIndex: number) => {
+      const nextCustomer = filteredCustomers[nextIndex]
+      if (!nextCustomer) return
+
+      setDrawerTriggerContext((currentContext) => ({
+        customerId: nextCustomer.id,
+        source: currentContext?.source ?? "table",
+        originRect: currentContext?.originRect,
+      }))
+    },
+    [filteredCustomers]
+  )
+
+  const handleViewCustomerProfile = useCallback(() => {
+    if (!drawerCustomer) return
+
+    window.open(drawerCustomer.website, "_blank", "noopener,noreferrer")
+  }, [drawerCustomer])
+
   return (
     <div
       ref={pageContentRef}
@@ -409,10 +457,14 @@ export function CustomersPage({
             <CustomersTable
               customers={filteredCustomers}
               onCustomersChange={handleVisibleCustomersChange}
+              onOpenCustomerDrawer={openCustomerDrawer}
               onToolbarPropsChange={setTableToolbarProps}
             />
           ) : (
-            <CustomerCardGrid customers={filteredCustomers} />
+            <CustomerCardGrid
+              customers={filteredCustomers}
+              onOpenCustomerDrawer={openCustomerDrawer}
+            />
           )
         ) : (
           <div className="flex h-full min-h-[280px] items-center justify-center rounded-xl border border-dashed bg-muted/20 px-6 py-14 text-center">
@@ -452,6 +504,20 @@ export function CustomersPage({
           overlayStyle={pageContentOverlayStyle}
         />
       ) : null}
+
+      <CustomerDrawer
+        open={drawerCustomer !== null}
+        customer={drawerCustomer}
+        currentIndex={drawerCustomerIndex}
+        totalCount={filteredCustomers.length}
+        onPrevious={() => openCustomerDrawerAtIndex(drawerCustomerIndex - 1)}
+        onNext={() => openCustomerDrawerAtIndex(drawerCustomerIndex + 1)}
+        onClose={closeCustomerDrawer}
+        onAssign={() => {
+          // Placeholder action for v1 drawer.
+        }}
+        onViewProfile={handleViewCustomerProfile}
+      />
     </div>
   )
 }

@@ -17,8 +17,8 @@ import {
   type DataGridColumn,
   type DataGridToolbarRenderProps,
 } from "@/components/data-grid"
+import type { CustomerDrawerTriggerContext } from "@/components/customers/customer-drawer"
 import { CustomerInitialAvatar } from "@/components/customers/customer-initial-avatar"
-import { CustomerPreviewDrawerContent } from "@/components/customers/customer-preview-drawer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { getCustomerBrandPresentation } from "@/components/customers/customer-brand"
@@ -44,6 +44,7 @@ export type CustomerColumnId =
 type CustomersTableProps = {
   customers: Customer[]
   onCustomersChange: (customers: Customer[]) => void
+  onOpenCustomerDrawer?: (context: CustomerDrawerTriggerContext) => void
   onToolbarPropsChange?: (
     props: DataGridToolbarRenderProps<CustomerColumnId> | null
   ) => void
@@ -250,6 +251,7 @@ function renderStaticCustomerCell(
 export function CustomersTable({
   customers,
   onCustomersChange,
+  onOpenCustomerDrawer,
   onToolbarPropsChange,
 }: CustomersTableProps) {
   return (
@@ -301,27 +303,25 @@ export function CustomersTable({
         }}
         onRowsChange={onCustomersChange}
         onToolbarPropsChange={onToolbarPropsChange ?? undefined}
-        canOpenDrawer={(columnId) => columnId === "customer"}
+        canOpenDrawer={(columnId) =>
+          columnId === "customer" && onOpenCustomerDrawer !== undefined
+        }
+        onOpenDrawerCell={
+          onOpenCustomerDrawer
+            ? (cell) => {
+                if (cell.columnId !== "customer") return
+
+                onOpenCustomerDrawer({
+                  customerId: cell.rowId,
+                  source: "table",
+                  originRect: cell.originRect,
+                })
+              }
+            : undefined
+        }
         getDrawerCellValue={(customer, columnId) =>
           renderStaticCustomerCell(customer, columnId)
         }
-        renderDrawerPanel={({
-          drawerRow,
-          drawerRowIndex,
-          drawerRowCount,
-          openPreviousRow,
-          openNextRow,
-          closeDrawer,
-        }) => (
-          <CustomerPreviewDrawerContent
-            customer={drawerRow}
-            currentIndex={drawerRowIndex}
-            totalCount={drawerRowCount}
-            onPrevious={openPreviousRow}
-            onNext={openNextRow}
-            onClose={closeDrawer}
-          />
-        )}
         renderSummary={(column, visibleRows) => {
           const visibleAverageCsat =
             visibleRows.length > 0

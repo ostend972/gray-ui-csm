@@ -9,10 +9,14 @@ import {
   IconPlus,
   IconSearch,
   IconSend,
-  IconTicket,
   IconUsers,
 } from "@tabler/icons-react"
 
+import {
+  ActivityTimelineEventItem,
+  ActivityTimelineList,
+  type ActivityTimelineItem,
+} from "@/components/activity/activity-timeline"
 import {
   channelLabel,
   macroSuggestions,
@@ -101,35 +105,14 @@ function DetailStat({
   )
 }
 
-function TimelineEventCard({ item }: { item: TicketTimelineEvent }) {
-  const toneClassName =
-    item.tone === "warning"
-      ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300"
-      : item.tone === "success"
-        ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
-        : "border-border bg-background text-foreground"
-
-  return (
-    <div className="flex gap-3">
-      <div
-        className={cn(
-          "mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full border",
-          toneClassName
-        )}
-      >
-        <IconTicket className="size-4" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="font-semibold text-foreground">{item.title}</span>
-          <span className="text-muted-foreground">{item.timestamp}</span>
-        </div>
-        <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          {item.detail}
-        </p>
-      </div>
-    </div>
-  )
+function mapTicketEventToActivityItem(item: TicketTimelineEvent): ActivityTimelineItem {
+  return {
+    id: item.id,
+    title: item.title,
+    detail: item.detail,
+    timestamp: item.timestamp,
+    tone: item.tone ?? "neutral",
+  }
 }
 
 function TimelineMessageCard({ item }: { item: TicketTimelineMessage }) {
@@ -236,7 +219,12 @@ export function ConversationTabContent({
               return <TimelineMessageCard key={item.id} item={item} />
             }
 
-            return <TimelineEventCard key={item.id} item={item} />
+            return (
+              <ActivityTimelineEventItem
+                key={item.id}
+                item={mapTicketEventToActivityItem(item)}
+              />
+            )
           })}
         </div>
       </div>
@@ -479,12 +467,12 @@ export function ActivityTabContent({
 }: {
   activityItems: TicketTimelineEvent[]
 }) {
+  const mappedActivityItems = activityItems.map(mapTicketEventToActivityItem)
+
   return (
     <div className="scrollbar-hidden h-full overflow-y-auto px-6 py-6">
-      <div className="space-y-8 border-l border-border/70 pl-6">
-        {activityItems.map((item) => (
-          <TimelineEventCard key={item.id} item={item} />
-        ))}
+      <div className="border-l border-border/70 pl-6">
+        <ActivityTimelineList items={mappedActivityItems} />
       </div>
     </div>
   )
