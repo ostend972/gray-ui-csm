@@ -62,7 +62,6 @@ type CustomerDrawerProps = {
   onPrevious: () => void
   onNext: () => void
   onClose: () => void
-  onAssign: () => void
   onViewProfile: () => void
 }
 
@@ -160,7 +159,6 @@ export function CustomerDrawer({
   onPrevious,
   onNext,
   onClose,
-  onAssign,
   onViewProfile,
 }: CustomerDrawerProps) {
   const [sectionState, setSectionState] =
@@ -441,15 +439,6 @@ export function CustomerDrawer({
               </div>
 
               <div className="flex min-w-0 items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="rounded-xl"
-                  onClick={onAssign}
-                >
-                  Assign
-                </Button>
                 <Button
                   type="button"
                   variant="outline"
