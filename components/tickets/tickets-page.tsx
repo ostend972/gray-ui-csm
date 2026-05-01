@@ -40,6 +40,7 @@ import type { Ticket } from "@/lib/tickets/types"
 type TicketsPageProps = {
   initialView?: string | null
   initialLayout?: string | null
+  initialTickets?: Ticket[]
 }
 
 type BulkFeedbackTone = "success" | "warning" | "error"
@@ -58,6 +59,7 @@ const BULK_FEEDBACK_EXIT_MS = 220
 export function TicketsPage({
   initialView = "all",
   initialLayout = "board",
+  initialTickets,
 }: TicketsPageProps) {
   const {
     isMobile,
@@ -99,7 +101,7 @@ export function TicketsPage({
     setIsDiscardDraftDialogOpen,
     closeTicketImmediately,
     handleCreateTicket,
-  } = useTicketsPageState({ initialView, initialLayout })
+  } = useTicketsPageState({ initialView, initialLayout, initialTickets })
   const [bulkFeedback, setBulkFeedback] = useState<BulkFeedback | null>(null)
   const [isBulkFeedbackVisible, setIsBulkFeedbackVisible] = useState(false)
   const [deleteConfirmState, setDeleteConfirmState] = useState<{

@@ -14,14 +14,18 @@ import type {
 import { useIsMobile } from "@/hooks/use-mobile"
 import type { TicketSortPreset } from "./ticket-table"
 
+import type { Ticket } from "@/lib/tickets/types"
+
 type UseTicketsPageStateArgs = {
   initialView?: string | null
   initialLayout?: string | null
+  initialTickets?: Ticket[]
 }
 
 export function useTicketsPageState({
   initialView = "all",
   initialLayout = "board",
+  initialTickets,
 }: UseTicketsPageStateArgs = {}) {
   const isMobile = useIsMobile()
 
@@ -68,6 +72,7 @@ export function useTicketsPageState({
     activeTicketId,
     createContextSearchParams,
     replaceSearchParams,
+    initialTickets,
   })
 
   const [sortPreset, setSortPreset] = useState<TicketSortPreset>("boardOrder")

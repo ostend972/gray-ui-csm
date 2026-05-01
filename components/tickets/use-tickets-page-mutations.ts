@@ -17,7 +17,7 @@ import {
   patchTicketById,
   patchTicketsByIds,
 } from "@/components/tickets/tickets-page-mutation-helpers"
-import { tickets as initialTickets } from "@/lib/tickets/mock-data"
+import { tickets as fallbackTickets } from "@/lib/tickets/mock-data"
 import type {
   Ticket,
   TicketDrawerOrigin,
@@ -31,14 +31,18 @@ type UseTicketsPageMutationsArgs = {
   activeTicketId: string | null
   createContextSearchParams: () => URLSearchParams
   replaceSearchParams: (nextSearchParams: URLSearchParams) => void
+  initialTickets?: Ticket[]
 }
 
 export function useTicketsPageMutations({
   activeTicketId,
   createContextSearchParams,
   replaceSearchParams,
+  initialTickets,
 }: UseTicketsPageMutationsArgs) {
-  const [ticketItems, setTicketItems] = useState(initialTickets)
+  const [ticketItems, setTicketItems] = useState<Ticket[]>(
+    initialTickets ?? fallbackTickets
+  )
   const [tableToolbarProps, setTableToolbarProps] =
     useState<DataGridToolbarRenderProps<TicketColumnId> | null>(null)
   const [messageDrafts, setMessageDrafts] = useState<Record<string, string>>({})
