@@ -513,9 +513,6 @@ export function CustomersPage({
         onPrevious={() => openCustomerDrawerAtIndex(drawerCustomerIndex - 1)}
         onNext={() => openCustomerDrawerAtIndex(drawerCustomerIndex + 1)}
         onClose={closeCustomerDrawer}
-        onAssign={() => {
-          // Placeholder action for v1 drawer.
-        }}
         onViewProfile={handleViewCustomerProfile}
       />
     </div>
